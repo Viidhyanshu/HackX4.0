@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-violet:   #7801FF;
+  --color-purple:   #B86EF9;
+  --color-magenta:  #D242D7;
+  --color-white:    #FFFFFF;
+  --color-bg:       #08010F;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
