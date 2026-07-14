@@ -317,6 +317,10 @@ export default function FluidShaderBackground() {
           <path
             d="M335.279 0.25L559.355 400.69L894.574 999.75H559.721L335.645 599.31L0.425781 0.25H335.279ZM335.177 999.75H0.535156L335.177 600.119V999.75ZM894.465 0.25L559.823 399.88V0.25H894.465Z"
             fill="url(#movingGradient)"
+            stroke="#d9d1fa"
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+            strokeOpacity="0.8"
           />
         </svg>
       </div>
