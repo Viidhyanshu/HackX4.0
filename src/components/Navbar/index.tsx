@@ -109,7 +109,7 @@ export default function Navbar() {
       <header className="fixed top-0 left-0 w-full z-50 h-24 md:h-32 px-7 md:px-12 flex justify-between items-center mix-blend-difference pointer-events-none">
         <button
           onClick={() => setIsOpen(true)}
-          className="pointer-events-auto group flex items-center gap-3 text-white hover:opacity-85 transition-opacity font-serif text-xs md:text-sm font-normal tracking-tight"
+          className="pointer-events-auto group flex items-center gap-3 text-white hover:opacity-85 transition-opacity font-sans text-xs md:text-sm font-normal tracking-tight"
           aria-label="Open Menu"
         >
           <div className="flex flex-col gap-1.5 justify-center items-start w-5">
@@ -119,7 +119,7 @@ export default function Navbar() {
           <span className="relative top-[-0.5px]">Menu</span>
         </button>
 
-        <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-2">
+        <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <Link href="/">
             <img
               src="/assets/logos/HACKX%20White@2x.png"
@@ -131,7 +131,7 @@ export default function Navbar() {
 
         <a
           href="#register"
-          className="pointer-events-auto group/btn font-serif text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5"
+          className="pointer-events-auto group/btn font-sans text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5"
         >
           <span>Register</span>
           <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>

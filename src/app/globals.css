@@ -7,7 +7,7 @@
   --color-purple: #B86EF9;
   --color-magenta: #D242D7;
   --color-white: #FFFFFF;
-  --color-bg: #08010F;
+  --color-bg: #090416;
 }
 
 * {
@@ -17,7 +17,7 @@
 }
 
 html {
-  background-color: #101827;
+  background-color: #090416;
   min-height: 100vh;
 }
 

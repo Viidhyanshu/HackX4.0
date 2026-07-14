@@ -277,7 +277,7 @@ export default function FluidShaderBackground() {
     <>
       {/* 1. Deep premium CSS gradient background layer */}
       <div
-        className="pointer-events-none fixed inset-0 bg-[#06040f] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#13002b] via-[#06040f] to-[#030206]"
+        className="pointer-events-none fixed inset-0 bg-[#090416] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1f093f] via-[#090416] to-[#04020a]"
         style={{ zIndex: -20 }}
       />
 
