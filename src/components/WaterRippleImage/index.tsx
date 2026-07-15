@@ -49,7 +49,7 @@ export function WaterRippleImage({ imageUrl, isActive, priority = false }: Water
         // A single, lower-resolution canvas is visually smooth without
         // competing with the page's other animations.
         resolution: 128,
-        perturbance: 0.058,
+        perturbance: 0.018,
         dropRadius: 24,
         // One active canvas keeps the pointer-driven effect responsive without
         // the overload caused by every gallery card listening at once.
