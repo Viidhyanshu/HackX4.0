@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import SdgComponent from "@/components/sdg";
 import Stats from "@/components/Stats";
 import Themes from "@/components/Themes";
-import Timeline from "@/components/Timeline";
 
 export default function Home() {
   // Smooth staggered entry animations
@@ -121,9 +120,6 @@ export default function Home() {
       <SdgComponent />
       <Stats />
       <Themes />
-      <div id="timeline">
-        <Timeline />
-      </div>
     </>
   );
 }

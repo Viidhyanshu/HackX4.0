@@ -85,8 +85,8 @@ export default function Timeline() {
     };
   }, [mounted, scrollYProgress]);
 
-  // Map scroll progress to the Y position along the SVG viewBox (500 to 5500)
-  const yPosition = useTransform(progressSpring, [0, 1], [500, 5500], { clamp: true });
+  // Map scroll progress to the Y position along the SVG viewBox (0 to 5500)
+  const yPosition = useTransform(progressSpring, [0, 1], [0, 5500], { clamp: true });
 
   // Derived X position based on the sine wave formula
   const xPosition = useTransform(yPosition, (y) => {
@@ -118,9 +118,8 @@ export default function Timeline() {
       ref={containerRef} 
       className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
     >
-      {/* SVG Container: fixed-width and centered on desktop, narrow and aligned left on mobile */}
-      {mounted && (
-        <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
+      <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
+        {mounted && (
         <svg 
           viewBox="0 0 1000 5500" 
           className="w-full h-full overflow-visible"
@@ -210,8 +209,8 @@ export default function Timeline() {
           </motion.g>
 
         </svg>
+        )}
       </div>
-      )}
 
       {/* Cards list absolutely positioned corresponding to their coordinates */}
       <div className="relative w-full max-w-[1200px] mx-auto h-full px-6 md:px-12 pointer-events-none">
