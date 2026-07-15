@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 
 const milestones = [
   {
@@ -45,11 +45,8 @@ export default function Timeline() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Track scroll progress relative to the timeline container
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start center", "end center"]
-  });
+  // Track scroll progress manually to bypass hydration/ref lifecycle issues
+  const scrollYProgress = useMotionValue(0);
 
   // Smooth scroll progress using a spring
   const progressSpring = useSpring(scrollYProgress, {
@@ -57,6 +54,36 @@ export default function Timeline() {
     damping: 25,
     restDelta: 0.001
   });
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      // Calculate scroll progress from start center to end center
+      const startPos = viewportHeight / 2;
+      const currentPos = startPos - rect.top;
+      const totalDist = rect.height;
+      
+      const progress = Math.max(0, Math.min(1, currentPos / totalDist));
+      scrollYProgress.set(progress);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Run on mount
+    handleScroll();
+
+    // Run on a short delay to ensure Lenis has fully initialized and page layout is stable
+    const timer = setTimeout(handleScroll, 100);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
+    };
+  }, [mounted, scrollYProgress]);
 
   // Map scroll progress to the Y position along the SVG viewBox (500 to 5500)
   const yPosition = useTransform(progressSpring, [0, 1], [500, 5500], { clamp: true });
@@ -85,13 +112,6 @@ export default function Timeline() {
 
   const fullPathD = generateFullPath();
 
-  if (!mounted) {
-    return (
-      <section 
-        className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
-      />
-    );
-  }
 
   return (
     <section 
@@ -99,7 +119,8 @@ export default function Timeline() {
       className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
     >
       {/* SVG Container: fixed-width and centered on desktop, narrow and aligned left on mobile */}
-      <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
+      {mounted && (
+        <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
         <svg 
           viewBox="0 0 1000 5500" 
           className="w-full h-full overflow-visible"
@@ -169,17 +190,28 @@ export default function Timeline() {
             );
           })}
 
-          {/* Moving Active Tracker Dot */}
-          <motion.circle
-            cx={xPosition}
-            cy={yPosition}
-            r="10"
-            fill="#ffffff"
-            filter="url(#active-glow)"
-          />
+          {/* Moving Active Tracker Dot with Group Translation & Halo Glow */}
+          <motion.g style={{ x: xPosition, y: yPosition }}>
+            {/* Outer halo glow */}
+            <circle
+              cx="0"
+              cy="0"
+              r="22"
+              fill="#ffffff"
+              opacity="0.25"
+            />
+            {/* Inner solid tracker */}
+            <circle
+              cx="0"
+              cy="0"
+              r="9"
+              fill="#ffffff"
+            />
+          </motion.g>
 
         </svg>
       </div>
+      )}
 
       {/* Cards list absolutely positioned corresponding to their coordinates */}
       <div className="relative w-full max-w-[1200px] mx-auto h-full px-6 md:px-12 pointer-events-none">
