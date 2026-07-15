@@ -5,6 +5,34 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Themes from "@/components/Themes";
 import PuzzleJoin from "@/components/PuzzleJoin";
+import FAQ from "@/components/FAQ";
+
+const AMBASSADOR_FAQ_DATA = [
+  {
+    question: "What is the Campus Ambassador Program?",
+    answer: "It is a student leadership initiative where you serve as the primary link between MUJ HackX 4.0 and your college. You will lead outreach efforts, promote the hackathon, and guide teams on your campus to register."
+  },
+  {
+    question: "Who is eligible to apply?",
+    answer: "Any undergraduate or postgraduate student currently enrolled in a college or university is eligible. We look for passionate individuals, student developers, tech club leaders, and marketing enthusiasts."
+  },
+  {
+    question: "What are my responsibilities as a Campus Ambassador?",
+    answer: "Your core responsibilities include promoting HackX 4.0 on social media, sharing registration links within your student network, encouraging teams to register, and acting as the point-of-contact for college-wide queries."
+  },
+  {
+    question: "What incentives and perks do I get?",
+    answer: "You will receive an official Certificate of Appreciation, exclusive HackX schwags, cash incentives for top-performing ambassadors based on registrations, priority entry/selection for your own team in the hackathon, and valuable network connections."
+  },
+  {
+    question: "Is there a registration fee or commitment requirement?",
+    answer: "No, joining the program is completely free. The commitment is flexible, and you can carry out outreach activities around your academic schedule."
+  },
+  {
+    question: "How are ambassadors selected?",
+    answer: "Selection is based on your application details, engagement with student communities, communication skills, and enthusiasm for technology and community building."
+  }
+];
 
 export default function Ambassador() {
   const containerVariants = {
@@ -43,7 +71,7 @@ export default function Ambassador() {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-transparent overflow-x-hidden text-white flex flex-col">
+    <div className="relative w-full min-h-screen bg-transparent text-white flex flex-col">
       {/* Background soft glows */}
       <div 
         className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full pointer-events-none select-none z-0 filter blur-[150px] opacity-20"
@@ -126,6 +154,18 @@ export default function Ambassador() {
       {/* Puzzle Component Section */}
       <section id="puzzle" className="relative w-full z-10">
         <PuzzleJoin />
+      </section>
+
+      {/* FAQ Component Section */}
+      <section id="faq" className="relative w-full z-10">
+        <FAQ 
+          data={AMBASSADOR_FAQ_DATA} 
+          heading={
+            <>
+              Campus Ambassador <br />program faqs.
+            </>
+          } 
+        />
       </section>
     </div>
   );

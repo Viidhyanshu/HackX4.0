@@ -18,7 +18,6 @@ export default function PuzzleJoin() {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsReady(true);
-      ScrollTrigger.refresh();
     }, 800);
     return () => clearTimeout(timer);
   }, []);
@@ -69,6 +68,10 @@ export default function PuzzleJoin() {
       { xPercent: 0, opacity: 1, rotate: 0, ease: "power1.out" },
       0
     );
+
+    // Force ScrollTrigger to refresh *after* this trigger is created,
+    // ensuring the heights and offsets of preceding pinned containers are accounted for.
+    ScrollTrigger.refresh();
   }, { scope: containerRef, dependencies: [isReady] });
 
   return (
