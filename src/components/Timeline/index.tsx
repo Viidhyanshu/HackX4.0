@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 const milestones = [
@@ -37,6 +37,12 @@ const milestones = [
 ];
 
 export default function Timeline() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Track scroll progress relative to the timeline container
@@ -79,10 +85,18 @@ export default function Timeline() {
 
   const fullPathD = generateFullPath();
 
+  if (!mounted) {
+    return (
+      <section 
+        className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
+      />
+    );
+  }
+
   return (
     <section 
       ref={containerRef} 
-      className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible py-24"
+      className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
     >
       {/* SVG Container: fixed-width and centered on desktop, narrow and aligned left on mobile */}
       <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
@@ -94,10 +108,10 @@ export default function Timeline() {
           <defs>
             {/* Gradient for the animated timeline line */}
             <linearGradient id="line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#ff5e3a" />
+              <stop offset="0%" stopColor="#ffffff" />
               <stop offset="35%" stopColor="#C076EC" />
               <stop offset="70%" stopColor="#572CE6" />
-              <stop offset="100%" stopColor="#ff5e3a" />
+              <stop offset="100%" stopColor="#ffffff" />
             </linearGradient>
 
             {/* Glowing filter for the active point */}
@@ -140,7 +154,7 @@ export default function Timeline() {
                   cy={yVal}
                   r="14"
                   fill="none"
-                  stroke="rgba(255, 94, 58, 0.15)"
+                  stroke="rgba(255, 255, 255, 0.15)"
                   strokeWidth="1"
                 />
                 {/* Inner dot */}
@@ -148,7 +162,7 @@ export default function Timeline() {
                   cx={xVal}
                   cy={yVal}
                   r="5"
-                  fill="#ff5e3a"
+                  fill="#ffffff"
                   opacity="0.65"
                 />
               </g>
@@ -160,7 +174,7 @@ export default function Timeline() {
             cx={xPosition}
             cy={yPosition}
             r="10"
-            fill="#ff5e3a"
+            fill="#ffffff"
             filter="url(#active-glow)"
           />
 
@@ -189,7 +203,7 @@ export default function Timeline() {
                 className={`flex flex-col ${isLeft ? "md:items-end md:text-right" : "items-start text-left"}`}
               >
                 {/* Milestone Big Number */}
-                <span className="font-serif italic text-7xl md:text-8xl text-[#ff5e3a] leading-none mb-4 block select-none">
+                <span className="font-serif italic text-7xl md:text-8xl text-white leading-none mb-4 block select-none">
                   {item.number}
                 </span>
                 
