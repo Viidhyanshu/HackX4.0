@@ -48,13 +48,13 @@ export default function FAQ() {
   };
 
   return (
-    <section className="relative w-full py-24 bg-transparent text-white overflow-hidden select-none">
+    <section className="relative w-full py-24 bg-transparent text-white overflow-visible select-none">
       {mounted && (
         <div className="max-w-[1200px] mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20">
           
           {/* Left Column: FAQs Badge and Organizer Avatar Card */}
-          <div className="lg:col-span-4 flex flex-col justify-between min-h-[500px] gap-12">
+          <div className="lg:col-span-4 lg:sticky lg:top-32 h-fit flex flex-col justify-start gap-16">
             
             {/* Top FAQs indicator */}
             <div className="flex items-center gap-2 text-xs md:text-sm font-sans tracking-widest uppercase text-white/50">
@@ -63,7 +63,7 @@ export default function FAQ() {
             </div>
 
             {/* HackX Logo */}
-            <div className="flex flex-col items-start justify-center flex-grow py-12">
+            <div className="w-full relative py-4">
               <div className="max-w-[240px] md:max-w-[280px] w-full relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
@@ -80,7 +80,7 @@ export default function FAQ() {
           <div className="lg:col-span-8 flex flex-col justify-start">
             
             {/* Heading */}
-            <h2 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-white tracking-tight mb-16 leading-[1.08] uppercase">
+            <h2 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-white tracking-normal mb-16 leading-[1.08] uppercase">
               Here&apos;s what you <br />need to know before <br />registering.
             </h2>
 
@@ -109,9 +109,9 @@ export default function FAQ() {
                           className="absolute w-4 h-0.5 bg-current"
                         />
                         <motion.span 
-                          animate={{ rotate: isExpanded ? 90 : 0, scaleY: isExpanded ? 0 : 1 }}
+                          animate={{ rotate: isExpanded ? 135 : 90 }}
                           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                          className="absolute w-0.5 h-4 bg-current"
+                          className="absolute w-4 h-0.5 bg-current"
                         />
                       </span>
                     </div>
