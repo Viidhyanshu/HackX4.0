@@ -56,6 +56,7 @@ export default function Stats() {
   const imageRefs = useRef<(HTMLElement | null)[]>([]);
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
   const railDotRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const numberRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const scrollToSection = (index: number) => {
     if (typeof window === "undefined") return;
@@ -101,6 +102,14 @@ export default function Stats() {
             y: idx === 0 ? 0 : 25,
             pointerEvents: idx === 0 ? "auto" : "none",
           });
+
+          // Giant numbers position and opacity
+          if (numberRefs.current[idx]) {
+            gsap.set(numberRefs.current[idx], {
+              opacity: idx === 0 ? 1 : 0,
+              yPercent: idx === 0 ? 0 : 100,
+            });
+          }
 
           // Images along slanted conveyor positions (flat, no rotation, constant scale 1.0)
           if (idx === 0) {
@@ -185,6 +194,25 @@ export default function Stats() {
             ease: "none",
           }, `${labelFrom}+=0.55`); // Delay caption fade-in for near-center timing
 
+          // Giant active section number out/in
+          if (numberRefs.current[i]) {
+            tl.to(numberRefs.current[i], {
+              opacity: 0,
+              yPercent: -100,
+              duration: 0.8,
+              ease: "power1.inOut",
+            }, labelFrom);
+          }
+
+          if (numberRefs.current[i + 1]) {
+            tl.to(numberRefs.current[i + 1], {
+              opacity: 1,
+              yPercent: 0,
+              duration: 0.8,
+              ease: "power1.inOut",
+            }, `${labelFrom}+=0.2`);
+          }
+
           // Conveyor transitions: current active image (i) exits to Top-Left (constant scale 1.0)
           tl.to(imageRefs.current[i], {
             x: -xOffsetVal,
@@ -255,6 +283,27 @@ export default function Stats() {
       id="stats-archive-page"
     >
 
+      {/* Giant active section number background */}
+      <div className="absolute left-16 md:left-28 lg:left-40 bottom-[2vh] md:bottom-[3vh] lg:bottom-[4vh] z-30 hidden sm:flex items-end pointer-events-none select-none text-cream/90">
+        <span className="font-sans font-medium text-[20vw] md:text-[18vw] lg:text-[15vw] xl:text-[13vw] leading-none">0</span>
+        <div className="relative font-sans font-medium text-[20vw] md:text-[18vw] lg:text-[15vw] xl:text-[13vw] leading-none h-[1em] w-[0.7em] overflow-hidden">
+          {STATS_DATA.map((sec, idx) => {
+            const secondDigit = sec.id.charAt(1) || sec.id;
+            return (
+              <div
+                key={sec.id}
+                ref={(el) => { numberRefs.current[idx] = el; }}
+                className="absolute bottom-0 left-0 font-sans font-medium text-[20vw] md:text-[18vw] lg:text-[15vw] xl:text-[13vw] leading-none will-change-[transform,opacity]"
+                style={{ display: "block", opacity: idx === 0 ? 1 : 0 }}
+                id={`stats-number-${sec.id}`}
+              >
+                {secondDigit}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Left-side vertical rail */}
       <nav
         className="absolute left-6 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 z-40 hidden sm:flex flex-col gap-4 font-sans text-[10px] uppercase tracking-[0.25em] select-none"
@@ -282,8 +331,8 @@ export default function Stats() {
               {/* Slide/Fade text label */}
               <span
                 className={`font-serif italic lowercase text-xs tracking-wider transition-all duration-500 overflow-hidden whitespace-nowrap ${isActive
-                    ? "w-32 opacity-100 text-[#faebac] translate-x-0"
-                    : "w-0 opacity-0 -translate-x-2"
+                  ? "w-32 opacity-100 text-[#faebac] translate-x-0"
+                  : "w-0 opacity-0 -translate-x-2"
                   }`}
               >
                 — {sec.title}
@@ -322,7 +371,7 @@ export default function Stats() {
       </section>
 
       {/* Right-side text block / Mobile bottom text block */}
-      <aside className="absolute max-md:bottom-[8vh] max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[85vw] max-md:text-center md:right-16 lg:right-24 md:top-1/2 md:-translate-y-1/2 md:w-[320px] lg:w-[380px] text-left z-40 pointer-events-none select-none">
+      <aside className="absolute max-md:bottom-[8vh] max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[85vw] max-md:text-center md:right-16 lg:right-24 md:top-[40%] md:-translate-y-1/2 md:w-[320px] lg:w-[380px] text-left z-40 pointer-events-none select-none">
         <div className="relative w-full h-12 md:h-24">
           {STATS_DATA.map((sec, idx) => (
             <div
