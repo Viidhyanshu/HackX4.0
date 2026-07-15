@@ -4,10 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Themes from "@/components/Themes";
-import PuzzleSection from "./PuzzleSection";
+import PuzzleJoin from "@/components/PuzzleJoin";
 
 export default function Ambassador() {
-
   const containerVariants = {
     hidden: {},
     visible: {
@@ -124,9 +123,10 @@ export default function Ambassador() {
         <Themes />
       </section>
 
-      {/* Puzzle snap Section */}
-      <PuzzleSection />
+      {/* Puzzle Component Section */}
+      <section id="puzzle" className="relative w-full z-10">
+        <PuzzleJoin />
+      </section>
     </div>
   );
 }
-
