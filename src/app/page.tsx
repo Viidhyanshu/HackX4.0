@@ -2,7 +2,6 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import SdgComponent from "@/components/sdg";
 import Stats from "@/components/Stats";
 import Themes from "@/components/Themes";
 
@@ -117,7 +116,6 @@ export default function Home() {
 
       </div>
 
-      <SdgComponent />
       <Stats />
       <Themes />
     </>
