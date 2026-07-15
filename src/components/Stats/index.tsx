@@ -244,21 +244,9 @@ export default function Stats() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden bg-black"
+      className="relative w-full h-screen overflow-hidden bg-transparent"
       id="stats-archive-page"
     >
-      {/* Landing page background exactly */}
-      <div
-        className="pointer-events-none absolute"
-        style={{
-          width: "1675px",
-          height: "853px",
-          top: "-390px",
-          left: "-82px",
-          background:
-            "radial-gradient(ellipse at 50% 50%, rgba(184,110,249,0.95) 0%, rgba(120,1,255,0.85) 35%, rgba(60,0,130,0.4) 60%, transparent 75%)",
-        }}
-      />
 
       {/* Left-side vertical rail */}
       <nav
