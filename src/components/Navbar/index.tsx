@@ -145,8 +145,8 @@ export default function Navbar() {
     { label: "Timeline", href: "/timeline" },
     { label: "Ambassador", href: "#ambassador" },
     { label: "Team", href: "#team" },
-    { label: "Gallery", href: "#gallery" },
-    { label: "Contact", href: "#contact" },
+    { label: "Gallery", href: "/gallery" },
+    { label: "Contact", href: "/contact" },
   ];
 
   // Wipe animation
