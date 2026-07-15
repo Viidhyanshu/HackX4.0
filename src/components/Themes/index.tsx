@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import ThemeCard, { ThemeCardData } from "./ThemeCard";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Custom HackX 4.0 themes with appropriate cyber-tech graphics
 const THEME_CARDS: ThemeCardData[] = [
@@ -61,122 +64,20 @@ export default function Themes() {
   const trackRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  const [isReady, setIsReady] = useState(false);
+  const [resizeKey, setResizeKey] = useState(0);
+
+  // Delay initialization to guarantee layout painting is completed
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    gsap.registerPlugin(ScrollTrigger);
-
-    let ctx: gsap.Context | null = null;
-
-    const initAnimation = () => {
-      if (ctx) {
-        ctx.revert();
-      }
-
-      ctx = gsap.context(() => {
-        const track = trackRef.current;
-        const cards = cardsRef.current.filter(Boolean) as HTMLElement[];
-        const container = containerRef.current;
-
-        if (!track || cards.length === 0 || !container) return;
-
-        const vWidth = window.innerWidth;
-
-        // Reset card styles to calculate clean base dimensions
-        gsap.set(cards, { rotation: 0, y: 0, z: 0, scale: 1 });
-
-        const cardRect = cards[0].getBoundingClientRect();
-        const cardWidth = cardRect.width;
-
-        // Extract gap from computed style to avoid rotated bounding rect issues
-        let gap = vWidth * 0.04; // fallback to 4vw
-        const style = window.getComputedStyle(track);
-        const gapVal = style.gap;
-        if (gapVal && gapVal.includes("px")) {
-          gap = parseFloat(gapVal);
-        }
-
-        const N = cards.length;
-        const step = cardWidth + gap;
-
-        // Start: Card 0 is centered in viewport
-        const startX = vWidth / 2 - cardWidth / 2;
-        // End: Card N-1 is centered in viewport
-        const endX = startX - (N - 1) * step;
-
-        // Set track initial offset
-        gsap.set(track, { x: startX });
-
-        // Curved bend parameters
-        const maxRotation = 13; // Max degrees of tilt
-        const maxY = 90;        // Max downward drop (pixels)
-        const maxZ = 120;       // Max depth push into 3D space
-
-        const setCardState = (card: HTMLElement, index: number, progress: number) => {
-          // Linear offset of the card's center relative to screen center
-          const dx = (index - progress * (N - 1)) * step;
-          
-          // Normalize offset against 65% of viewport width
-          const normDx = dx / (vWidth * 0.65);
-          const absNorm = Math.min(Math.abs(normDx), 1.5);
-
-          // Calculate card values based on offset (left cards tilt left, right cards tilt right)
-          const rotation = normDx * maxRotation;
-          const y = Math.pow(absNorm, 1.4) * maxY;
-          const z = -Math.pow(absNorm, 1.4) * maxZ;
-
-          gsap.set(card, {
-            rotation: rotation,
-            y: y,
-            z: z,
-            transformPerspective: 1000,
-          });
-        };
-
-        // Apply start state immediately
-        cards.forEach((card, i) => setCardState(card, i, 0));
-
-        // Build main GSAP Timeline using fromTo and bind an onUpdate to sync card bend
-        const timeline = gsap.timeline({
-          onUpdate: function () {
-            const p = this.progress();
-            cards.forEach((card, i) => {
-              setCardState(card, i, p);
-            });
-          }
-        });
-
-        timeline.fromTo(track,
-          { x: startX },
-          { x: endX, ease: "none" }
-        );
-
-        // Bind timeline to ScrollTrigger
-        ScrollTrigger.create({
-          trigger: container,
-          start: "top top",
-          end: () => `+=${vWidth * 2.2}`, // Total scroll duration
-          scrub: 0.8,                     // Smooth catch-up lag
-          pin: true,
-          animation: timeline,
-          invalidateOnRefresh: true,
-        });
-      }, containerRef.current || undefined);
-    };
-
-    // Delay initialization to guarantee layout painting is completed
     const timer = setTimeout(() => {
-      initAnimation();
-      if (containerRef.current) {
-        gsap.to(containerRef.current, { opacity: 1, duration: 0.4 });
-      }
+      setIsReady(true);
     }, 150);
 
-    // Re-initialize on resize to keep calculations pixel-perfect (debounced to avoid layout thrashing)
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        initAnimation();
+        setResizeKey((prev) => prev + 1);
       }, 200);
     };
     window.addEventListener("resize", handleResize);
@@ -185,11 +86,103 @@ export default function Themes() {
       clearTimeout(timer);
       clearTimeout(resizeTimeout);
       window.removeEventListener("resize", handleResize);
-      if (ctx) {
-        ctx.revert();
-      }
     };
   }, []);
+
+  useGSAP(() => {
+    if (!isReady) return;
+
+    const track = trackRef.current;
+    const cards = cardsRef.current.filter(Boolean) as HTMLElement[];
+    const container = containerRef.current;
+
+    if (!track || cards.length === 0 || !container) return;
+
+    const vWidth = window.innerWidth;
+
+    // Reset card styles to calculate clean base dimensions
+    gsap.set(cards, { rotation: 0, y: 0, z: 0, scale: 1 });
+
+    const cardRect = cards[0].getBoundingClientRect();
+    const cardWidth = cardRect.width;
+
+    // Extract gap from computed style to avoid rotated bounding rect issues
+    let gap = vWidth * 0.04; // fallback to 4vw
+    const style = window.getComputedStyle(track);
+    const gapVal = style.gap;
+    if (gapVal && gapVal.includes("px")) {
+      gap = parseFloat(gapVal);
+    }
+
+    const N = cards.length;
+    const step = cardWidth + gap;
+
+    // Start: Card 0 is centered in viewport
+    const startX = vWidth / 2 - cardWidth / 2;
+    // End: Card N-1 is centered in viewport
+    const endX = startX - (N - 1) * step;
+
+    // Set track initial offset
+    gsap.set(track, { x: startX });
+
+    // Curved bend parameters
+    const maxRotation = 13; // Max degrees of tilt
+    const maxY = 90;        // Max downward drop (pixels)
+    const maxZ = 120;       // Max depth push into 3D space
+
+    const setCardState = (card: HTMLElement, index: number, progress: number) => {
+      // Linear offset of the card's center relative to screen center
+      const dx = (index - progress * (N - 1)) * step;
+      
+      // Normalize offset against 65% of viewport width
+      const normDx = dx / (vWidth * 0.65);
+      const absNorm = Math.min(Math.abs(normDx), 1.5);
+
+      // Calculate card values based on offset (left cards tilt left, right cards tilt right)
+      const rotation = normDx * maxRotation;
+      const y = Math.pow(absNorm, 1.4) * maxY;
+      const z = -Math.pow(absNorm, 1.4) * maxZ;
+
+      gsap.set(card, {
+        rotation: rotation,
+        y: y,
+        z: z,
+        transformPerspective: 1000,
+      });
+    };
+
+    // Apply start state immediately
+    cards.forEach((card, i) => setCardState(card, i, 0));
+
+    // Build main GSAP Timeline using fromTo and bind an onUpdate to sync card bend
+    const timeline = gsap.timeline({
+      onUpdate: function () {
+        const p = this.progress();
+        cards.forEach((card, i) => {
+          setCardState(card, i, p);
+        });
+      }
+    });
+
+    timeline.fromTo(track,
+      { x: startX },
+      { x: endX, ease: "none" }
+    );
+
+    // Bind timeline to ScrollTrigger
+    ScrollTrigger.create({
+      trigger: container,
+      start: "top top",
+      end: () => `+=${vWidth * 2.2}`, // Total scroll duration
+      scrub: 0.8,                     // Smooth catch-up lag
+      pin: true,
+      animation: timeline,
+      invalidateOnRefresh: true,
+    });
+
+    // Fade in container after paint/measure delay
+    gsap.to(container, { opacity: 1, duration: 0.4 });
+  }, { scope: containerRef, dependencies: [isReady, resizeKey], revertOnUpdate: true });
 
   return (
     <div

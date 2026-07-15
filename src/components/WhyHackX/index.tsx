@@ -3,6 +3,9 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const ITEMS = [
   {
@@ -41,45 +44,36 @@ export default function WhyHackX() {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressLineRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    gsap.registerPlugin(ScrollTrigger);
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
 
-    let ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-
-      // Desktop layout: sticky left column, scrolling right column
-      mm.add("(min-width: 769px)", () => {
-        // Progress line height animation synced exactly with the entire scroll/sticky pinning duration
-        gsap.fromTo(
-          progressLineRef.current,
-          { scaleY: 0 },
-          {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: "bottom bottom",
-              scrub: true,
-            }
+    // Desktop layout: sticky left column, scrolling right column
+    mm.add("(min-width: 769px)", () => {
+      // Progress line height animation synced exactly with the entire scroll/sticky pinning duration
+      gsap.fromTo(
+        progressLineRef.current,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: true,
           }
-        );
-      });
-
-      // Mobile/Tablet layout: standard flow
-      mm.add("(max-width: 768px)", () => {
-        // Reset scaleY for mobile
-        if (progressLineRef.current) {
-          gsap.set(progressLineRef.current, { scaleY: 1 });
         }
-      });
-    }, containerRef.current || undefined);
+      );
+    });
 
-    return () => {
-      ctx.revert();
-    };
-  }, []);
+    // Mobile/Tablet layout: standard flow
+    mm.add("(max-width: 768px)", () => {
+      // Reset scaleY for mobile
+      if (progressLineRef.current) {
+        gsap.set(progressLineRef.current, { scaleY: 1 });
+      }
+    });
+  }, { scope: containerRef });
 
   return (
     <section

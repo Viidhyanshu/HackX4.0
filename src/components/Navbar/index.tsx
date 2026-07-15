@@ -272,8 +272,8 @@ export default function Navbar() {
           aria-label={isOpen ? "Close Menu" : "Open Menu"}
         >
           <div className="relative w-6 h-6 flex items-center justify-center overflow-hidden">
-            <span className="absolute w-6 h-[1.5px] bg-white"></span>
-            <span className="absolute w-6 h-[1.5px] bg-white"></span>
+            <span className="absolute w-4 h-[0.5px] bg-white"></span>
+            <span className="absolute w-4 h-[0.5px] bg-white"></span>
           </div>
           <span className="text-[10px] uppercase tracking-[0.2em] font-semibold font-sans h-4 flex items-center overflow-hidden relative select-none">
             <AnimatePresence mode="wait">
@@ -384,10 +384,10 @@ export default function Navbar() {
                 Contact us
               </span>
               <a
-                href="mailto:HACKXMUJ@GMAIL.COM"
+                href="mailto:hackxmuj@gmail.com"
                 className="text-[#F9F6F0] text-xs md:text-sm font-sans tracking-wide hover:opacity-75 transition-opacity border-b border-[#F9F6F0] pb-0.5"
               >
-                HACKXMUJ@GMAIL.COM
+                hackxmuj@gmail.com
               </a>
             </motion.div>
           </motion.div>

@@ -3,6 +3,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Brand {
   name: string;
@@ -211,10 +214,8 @@ export default function SdgComponent() {
     };
   };
 
-  useEffect(() => {
+  useGSAP(() => {
     if (!sectionRef.current) return;
-
-    gsap.registerPlugin(ScrollTrigger);
 
     // Setup initial states — active is index 0
     brands.forEach((_, k) => {
@@ -245,131 +246,125 @@ export default function SdgComponent() {
       }
     });
 
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+    const mm = gsap.matchMedia();
 
-      // Desktop layout
-      mm.add("(min-width: 769px)", () => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: `+=${window.innerHeight * (brands.length - 1) * 0.45}`,
-            scrub: 0.5, // Faster and more responsive wheel tracking
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const progressIdx = Math.round(self.progress * (brands.length - 1));
-              if (progressIdx !== activeIndexRef.current) {
-                activeIndexRef.current = progressIdx;
-                setActiveIndex(progressIdx);
-              }
-            },
-          },
-        });
-
-        // Core transitions for each brand item
-        for (let s = 1; s < brands.length; s++) {
-          // Transition each brand along the mirrored arc trajectory
-          for (let k = 0; k < brands.length; k++) {
-            const diff = k - s; // negative = above active, positive = below
-            const pos = getArcPosition(diff);
-            const vis = getVisualProps(diff);
-
-            tl.to(brandRefs.current[k], {
-              x: pos.x,
-              y: pos.y,
-              rotation: pos.rotation,
-              scale: vis.scale,
-              opacity: vis.opacity,
-              filter: `blur(${vis.blur}px)`,
-              duration: 1,
-              ease: "none",
-            }, s - 1);
-          }
-        }
-      });
-
-      // Mobile/Tablet layout
-      mm.add("(max-width: 768px)", () => {
-        brands.forEach((_, k) => {
-          if (brandRefs.current[k]) {
-            gsap.set(brandRefs.current[k], {
-              transformOrigin: "center center",
-              rotation: 0,
-              scale: k === 0 ? 1.1 : 0.7,
-              opacity: k === 0 ? 1 : 0,
-              filter: k === 0 ? "blur(0px)" : "blur(2px)",
-              x: 0,
-              y: k === 0 ? 0 : 50,
-            });
-          }
-        });
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: `+=${window.innerHeight * (brands.length - 1) * 0.45}`,
-            scrub: 0.5, // Faster and more responsive scroll experience on mobile
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const progressIdx = Math.round(self.progress * (brands.length - 1));
-              if (progressIdx !== activeIndexRef.current) {
-                activeIndexRef.current = progressIdx;
-                setActiveIndex(progressIdx);
-              }
-            },
-          },
-        });
-
-        for (let s = 1; s < brands.length; s++) {
-          for (let k = 0; k < brands.length; k++) {
-            const targetDiff = k - s;
-            let scaleVal = 0.6;
-            let opacityVal = 0;
-            let blurVal = 3;
-            let yVal = 100;
-
-            if (targetDiff === 0) {
-              scaleVal = 1.1;
-              opacityVal = 1;
-              blurVal = 0;
-              yVal = 0;
-            } else if (targetDiff === -1) {
-              scaleVal = 0.85;
-              opacityVal = 0.45;
-              blurVal = 1;
-              yVal = -45;
-            } else if (targetDiff === 1) {
-              scaleVal = 0.85;
-              opacityVal = 0.45;
-              blurVal = 1;
-              yVal = 45;
-            } else if (targetDiff < -1) {
-              yVal = -100;
+    // Desktop layout
+    mm.add("(min-width: 769px)", () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: `+=${window.innerHeight * (brands.length - 1) * 0.45}`,
+          scrub: 0.5, // Faster and more responsive wheel tracking
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const progressIdx = Math.round(self.progress * (brands.length - 1));
+            if (progressIdx !== activeIndexRef.current) {
+              activeIndexRef.current = progressIdx;
+              setActiveIndex(progressIdx);
             }
+          },
+        },
+      });
 
-            tl.to(brandRefs.current[k], {
-              scale: scaleVal,
-              opacity: opacityVal,
-              filter: `blur(${blurVal}px)`,
-              y: yVal,
-              duration: 1,
-              ease: "none",
-            }, s - 1);
-          }
+      // Core transitions for each brand item
+      for (let s = 1; s < brands.length; s++) {
+        // Transition each brand along the mirrored arc trajectory
+        for (let k = 0; k < brands.length; k++) {
+          const diff = k - s; // negative = above active, positive = below
+          const pos = getArcPosition(diff);
+          const vis = getVisualProps(diff);
+
+          tl.to(brandRefs.current[k], {
+            x: pos.x,
+            y: pos.y,
+            rotation: pos.rotation,
+            scale: vis.scale,
+            opacity: vis.opacity,
+            filter: `blur(${vis.blur}px)`,
+            duration: 1,
+            ease: "none",
+          }, s - 1);
+        }
+      }
+    });
+
+    // Mobile/Tablet layout
+    mm.add("(max-width: 768px)", () => {
+      brands.forEach((_, k) => {
+        if (brandRefs.current[k]) {
+          gsap.set(brandRefs.current[k], {
+            transformOrigin: "center center",
+            rotation: 0,
+            scale: k === 0 ? 1.1 : 0.7,
+            opacity: k === 0 ? 1 : 0,
+            filter: k === 0 ? "blur(0px)" : "blur(2px)",
+            x: 0,
+            y: k === 0 ? 0 : 50,
+          });
         }
       });
-    }, sectionRef.current || undefined);
 
-    return () => {
-      ctx.revert();
-    };
-  }, []);
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: `+=${window.innerHeight * (brands.length - 1) * 0.45}`,
+          scrub: 0.5, // Faster and more responsive scroll experience on mobile
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const progressIdx = Math.round(self.progress * (brands.length - 1));
+            if (progressIdx !== activeIndexRef.current) {
+              activeIndexRef.current = progressIdx;
+              setActiveIndex(progressIdx);
+            }
+          },
+        },
+      });
+
+      for (let s = 1; s < brands.length; s++) {
+        for (let k = 0; k < brands.length; k++) {
+          const targetDiff = k - s;
+          let scaleVal = 0.6;
+          let opacityVal = 0;
+          let blurVal = 3;
+          let yVal = 100;
+
+          if (targetDiff === 0) {
+            scaleVal = 1.1;
+            opacityVal = 1;
+            blurVal = 0;
+            yVal = 0;
+          } else if (targetDiff === -1) {
+            scaleVal = 0.85;
+            opacityVal = 0.45;
+            blurVal = 1;
+            yVal = -45;
+          } else if (targetDiff === 1) {
+            scaleVal = 0.85;
+            opacityVal = 0.45;
+            blurVal = 1;
+            yVal = 45;
+          } else if (targetDiff < -1) {
+            yVal = -100;
+          }
+
+          tl.to(brandRefs.current[k], {
+            scale: scaleVal,
+            opacity: opacityVal,
+            filter: `blur(${blurVal}px)`,
+            y: yVal,
+            duration: 1,
+            ease: "none",
+          }, s - 1);
+        }
+      }
+    });
+  }, { scope: sectionRef });
 
   return (
     <section ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none">

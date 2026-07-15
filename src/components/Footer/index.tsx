@@ -86,7 +86,7 @@ export default function Footer() {
       <div className={styles["footer-bottom"]}>
         <div className={styles["contact-block"]}>
           <p className={styles["contact-us-label"]}>Contact us</p>
-          <a className={styles["contact-email"]} href="mailto:HACKXMUJ@GMAIL.COM">HACKXMUJ@GMAIL.COM</a>
+          <a className={styles["contact-email"]} href="mailto:hackxmuj@gmail.com">hackxmuj@gmail.com</a>
         </div>
 
         <div className={styles["footer-meta"]}>
