@@ -3,6 +3,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const STATS_DATA = [
   {
@@ -55,157 +58,43 @@ export default function Stats() {
     });
   };
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    gsap.registerPlugin(ScrollTrigger);
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+    mm.add(
+      {
+        isDesktop: "(min-width: 768px)",
+        isMobile: "(max-width: 767px)",
+      },
+      (context) => {
+        const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-      mm.add(
-        {
-          isDesktop: "(min-width: 768px)",
-          isMobile: "(max-width: 767px)",
-        },
-        (context) => {
-          const { isDesktop } = context.conditions as { isDesktop: boolean };
+        // Measure the image card's active container dimensions dynamically
+        const cardEl = imageRefs.current[0];
+        let cardWidth = window.innerWidth * 0.3; // safe defaults
+        let cardHeight = window.innerHeight * 0.48;
+        if (cardEl) {
+          const rect = cardEl.getBoundingClientRect();
+          cardWidth = rect.width;
+          cardHeight = rect.height;
+        }
 
-          // Measure the image card's active container dimensions dynamically
-          const cardEl = imageRefs.current[0];
-          let cardWidth = window.innerWidth * 0.3; // safe defaults
-          let cardHeight = window.innerHeight * 0.48;
-          if (cardEl) {
-            const rect = cardEl.getBoundingClientRect();
-            cardWidth = rect.width;
-            cardHeight = rect.height;
-          }
+        // Spacing offsets: slightly larger than card dimensions to add a small, elegant gap between adjacent edges
+        const xOffsetVal = isDesktop ? cardWidth * 1.06 : cardWidth * 0.45;
+        const yOffsetVal = isDesktop ? cardHeight * 1.06 : cardHeight * 0.65;
 
-          // Spacing offsets: slightly larger than card dimensions to add a small, elegant gap between adjacent edges
-          const xOffsetVal = isDesktop ? cardWidth * 1.06 : cardWidth * 0.45;
-          const yOffsetVal = isDesktop ? cardHeight * 1.06 : cardHeight * 0.65;
-
-          // Set initial element positions
-          STATS_DATA.forEach((_, idx) => {
-            // Text caption position and opacity
-            gsap.set(textRefs.current[idx], {
-              opacity: idx === 0 ? 1 : 0,
-              y: idx === 0 ? 0 : 25,
-              pointerEvents: idx === 0 ? "auto" : "none",
-            });
-
-            // Images along slanted conveyor positions (flat, no rotation, constant scale 1.0)
-            if (idx === 0) {
-              gsap.set(imageRefs.current[0], {
-                x: 0,
-                y: 0,
-                scale: 1,
-                opacity: 1,
-                filter: "grayscale(0%)",
-                zIndex: 10,
-                rotation: 0,
-              });
-            } else if (idx === 1) {
-              // Image 1 enters from Bottom-Right
-              gsap.set(imageRefs.current[1], {
-                x: xOffsetVal,
-                y: yOffsetVal,
-                scale: 1,
-                opacity: 0.15,
-                filter: "grayscale(100%)",
-                zIndex: 5,
-                rotation: 0,
-              });
-            } else {
-              // Image 2 and up start offscreen below Bottom-Right along the slanted line
-              const offX = xOffsetVal * 2;
-              const offY = yOffsetVal * 2;
-              gsap.set(imageRefs.current[idx], {
-                x: offX,
-                y: offY,
-                scale: 1,
-                opacity: 0,
-                filter: "grayscale(100%)",
-                zIndex: 1,
-                rotation: 0,
-              });
-            }
+        // Set initial element positions
+        STATS_DATA.forEach((_, idx) => {
+          // Text caption position and opacity
+          gsap.set(textRefs.current[idx], {
+            opacity: idx === 0 ? 1 : 0,
+            y: idx === 0 ? 0 : 25,
+            pointerEvents: idx === 0 ? "auto" : "none",
           });
 
-          // Create standard timeline linked to ScrollTrigger pinning (smooth scroll-scrub without snapping)
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: () => `+=${(STATS_DATA.length - 1) * window.innerHeight}`,
-              scrub: 1,
-              pin: true,
-              onUpdate: (self) => {
-                const progress = self.progress;
-                const index = Math.round(progress * (STATS_DATA.length - 1));
-                if (index !== activeIndexRef.current) {
-                  activeIndexRef.current = index;
-                  setActiveIndex(index);
-                }
-              },
-            },
-          });
-
-          // Register section timeline labels
-          STATS_DATA.forEach((_, index) => {
-            tl.addLabel(`section_${index}`, index);
-          });
-
-          // Build scroll scrub animation transitions
-          for (let i = 0; i < STATS_DATA.length - 1; i++) {
-            const labelFrom = `section_${i}`;
-
-            // Text caption out/in
-            tl.to(textRefs.current[i], {
-              opacity: 0,
-              y: -25,
-              pointerEvents: "none",
-              duration: 0.35,
-              ease: "none",
-            }, labelFrom);
-
-            tl.to(textRefs.current[i + 1], {
-              opacity: 1,
-              y: 0,
-              pointerEvents: "auto",
-              duration: 0.4,
-              ease: "none",
-            }, `${labelFrom}+=0.55`); // Delay caption fade-in for near-center timing
-
-            // Conveyor transitions: current active image (i) exits to Top-Left (constant scale 1.0)
-            tl.to(imageRefs.current[i], {
-              x: -xOffsetVal,
-              y: -yOffsetVal,
-              scale: 1,
-              opacity: 0.15,
-              filter: "grayscale(100%)",
-              zIndex: 1,
-              rotation: 0,
-              duration: 1,
-              ease: "none",
-            }, labelFrom);
-
-            // Previous exited image (i - 1) fades completely to 0 as it moves further Top-Left
-            if (i - 1 >= 0) {
-              tl.to(imageRefs.current[i - 1], {
-                x: -xOffsetVal * 2,
-                y: -yOffsetVal * 2,
-                scale: 1,
-                opacity: 0,
-                filter: "grayscale(100%)",
-                zIndex: 1,
-                rotation: 0,
-                duration: 1,
-                ease: "none",
-              }, labelFrom);
-            }
-
-            // Next preview image (i + 1) scales up and moves to Center-Stage (grayscale 0%, opacity 1.0, zIndex 10)
-            tl.to(imageRefs.current[i + 1], {
+          // Images along slanted conveyor positions (flat, no rotation, constant scale 1.0)
+          if (idx === 0) {
+            gsap.set(imageRefs.current[0], {
               x: 0,
               y: 0,
               scale: 1,
@@ -213,31 +102,138 @@ export default function Stats() {
               filter: "grayscale(0%)",
               zIndex: 10,
               rotation: 0,
+            });
+          } else if (idx === 1) {
+            // Image 1 enters from Bottom-Right
+            gsap.set(imageRefs.current[1], {
+              x: xOffsetVal,
+              y: yOffsetVal,
+              scale: 1,
+              opacity: 0.15,
+              filter: "grayscale(100%)",
+              zIndex: 5,
+              rotation: 0,
+            });
+          } else {
+            // Image 2 and up start offscreen below Bottom-Right along the slanted line
+            const offX = xOffsetVal * 2;
+            const offY = yOffsetVal * 2;
+            gsap.set(imageRefs.current[idx], {
+              x: offX,
+              y: offY,
+              scale: 1,
+              opacity: 0,
+              filter: "grayscale(100%)",
+              zIndex: 1,
+              rotation: 0,
+            });
+          }
+        });
+
+        // Create standard timeline linked to ScrollTrigger pinning (smooth scroll-scrub without snapping)
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: () => `+=${(STATS_DATA.length - 1) * window.innerHeight}`,
+            scrub: 1,
+            pin: true,
+            onUpdate: (self) => {
+              const progress = self.progress;
+              const index = Math.round(progress * (STATS_DATA.length - 1));
+              if (index !== activeIndexRef.current) {
+                activeIndexRef.current = index;
+                setActiveIndex(index);
+              }
+            },
+          },
+        });
+
+        // Register section timeline labels
+        STATS_DATA.forEach((_, index) => {
+          tl.addLabel(`section_${index}`, index);
+        });
+
+        // Build scroll scrub animation transitions
+        for (let i = 0; i < STATS_DATA.length - 1; i++) {
+          const labelFrom = `section_${i}`;
+
+          // Text caption out/in
+          tl.to(textRefs.current[i], {
+            opacity: 0,
+            y: -25,
+            pointerEvents: "none",
+            duration: 0.35,
+            ease: "none",
+          }, labelFrom);
+
+          tl.to(textRefs.current[i + 1], {
+            opacity: 1,
+            y: 0,
+            pointerEvents: "auto",
+            duration: 0.4,
+            ease: "none",
+          }, `${labelFrom}+=0.55`); // Delay caption fade-in for near-center timing
+
+          // Conveyor transitions: current active image (i) exits to Top-Left (constant scale 1.0)
+          tl.to(imageRefs.current[i], {
+            x: -xOffsetVal,
+            y: -yOffsetVal,
+            scale: 1,
+            opacity: 0.15,
+            filter: "grayscale(100%)",
+            zIndex: 1,
+            rotation: 0,
+            duration: 1,
+            ease: "none",
+          }, labelFrom);
+
+          // Previous exited image (i - 1) fades completely to 0 as it moves further Top-Left
+          if (i - 1 >= 0) {
+            tl.to(imageRefs.current[i - 1], {
+              x: -xOffsetVal * 2,
+              y: -yOffsetVal * 2,
+              scale: 1,
+              opacity: 0,
+              filter: "grayscale(100%)",
+              zIndex: 1,
+              rotation: 0,
               duration: 1,
               ease: "none",
             }, labelFrom);
+          }
 
-            // Next next image (i + 2) moves from Far Bottom-Right to Bottom-Right preview zone (constant scale 1.0)
-            if (i + 2 < STATS_DATA.length) {
-              tl.to(imageRefs.current[i + 2], {
-                x: xOffsetVal,
-                y: yOffsetVal,
-                scale: 1,
-                opacity: 0.15,
-                filter: "grayscale(100%)",
-                zIndex: 5,
-                rotation: 0,
-                duration: 1,
-                ease: "none",
-              }, labelFrom);
-            }
+          // Next preview image (i + 1) scales up and moves to Center-Stage (grayscale 0%, opacity 1.0, zIndex 10)
+          tl.to(imageRefs.current[i + 1], {
+            x: 0,
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            filter: "grayscale(0%)",
+            zIndex: 10,
+            rotation: 0,
+            duration: 1,
+            ease: "none",
+          }, labelFrom);
+
+          // Next next image (i + 2) moves from Far Bottom-Right to Bottom-Right preview zone (constant scale 1.0)
+          if (i + 2 < STATS_DATA.length) {
+            tl.to(imageRefs.current[i + 2], {
+              x: xOffsetVal,
+              y: yOffsetVal,
+              scale: 1,
+              opacity: 0.15,
+              filter: "grayscale(100%)",
+              zIndex: 5,
+              rotation: 0,
+              duration: 1,
+              ease: "none",
+            }, labelFrom);
           }
         }
-      );
-    }, containerRef.current || undefined);
-
-    return () => ctx.revert();
-  }, []);
+      }
+    );
+  }, { scope: containerRef });
 
   return (
     <div
