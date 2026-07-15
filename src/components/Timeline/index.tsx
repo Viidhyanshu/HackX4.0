@@ -6,33 +6,39 @@ import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 const milestones = [
   {
     number: "1.",
-    title: "FIRST HELLOS",
-    description: "We design authentic employer brands to shape high-performing organisations."
+    title: "REGISTRATION & CHECK-IN",
+    time: "09:00 AM - 10:30 AM",
+    description: "Get your badges, goodie bags, and settle into your hacking stations."
   },
   {
     number: "2.",
-    title: "INSPIRATION",
-    description: "We set clear expectations, build community and connection through designing game-changing onboarding."
+    title: "OPENING CEREMONY",
+    time: "10:30 AM - 11:30 AM",
+    description: "Keynote speech, theme reveals, guidelines briefing, and official kickoff."
   },
   {
     number: "3.",
-    title: "GROWTH",
-    description: "We reimagine the growth and performance experience to shape careers, businesses and futures."
+    title: "HACKING BEGINS",
+    time: "12:00 PM",
+    description: "Brainstorming session, repository initialization, and design begins."
   },
   {
     number: "4.",
-    title: "RECOGNITION",
-    description: "We build recognition strategies and experiences to celebrate the moments, big and small."
+    title: "MENTORING ROUND 1",
+    time: "04:00 PM - 06:00 PM",
+    description: "First interaction with industry experts to refine prototypes and validate ideas."
   },
   {
     number: "5.",
-    title: "CONNECTION",
-    description: "We find your unique organisational signature and create authentic Employee Value Propositions."
+    title: "MIDNIGHT SNACKS & FUN",
+    time: "12:00 AM",
+    description: "Unwind with mini-games, dynamic music, and late-night caffeine refills."
   },
   {
     number: "6.",
-    title: "CELEBRATION",
-    description: "We celebrate our milestones, reflecting on our journey to shape a brighter, more innovative tomorrow."
+    title: "FINAL PITCH & JUDGING",
+    time: "09:00 AM - 12:00 PM",
+    description: "Project submissions, final presentations to the panel, and declaration of winners."
   }
 ];
 
@@ -239,9 +245,14 @@ export default function Timeline() {
                 </span>
                 
                 {/* Milestone Title */}
-                <h3 className="font-sans font-bold text-white text-xl md:text-2xl tracking-wider mb-3">
+                <h3 className="font-sans font-bold text-white text-xl md:text-2xl tracking-wider mb-2">
                   {item.title}
                 </h3>
+                
+                {/* Milestone Time */}
+                <span className="font-serif italic text-xl md:text-2xl text-white/80 tracking-wide mb-3 block select-none">
+                  {item.time}
+                </span>
                 
                 {/* Milestone Description */}
                 <p className="font-sans text-white/70 text-sm md:text-base leading-relaxed max-w-sm">

@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import Timeline from "@/components/Timeline";
+import dynamic from "next/dynamic";
+
+const Timeline = dynamic(() => import("@/components/Timeline"), {
+  ssr: false,
+});
 
 export default function TimelinePage() {
   return (
@@ -11,9 +15,7 @@ export default function TimelinePage() {
         <h1 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-wider mb-4">
           Event Timeline
         </h1>
-        <p className="font-sans text-white/60 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-          Follow the journey of HackX 4.0. Scroll down to trace each milestone along the curved path of innovation.
-        </p>
+       
       </div>
 
       <Timeline />
