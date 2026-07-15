@@ -1,6 +1,6 @@
 
 .site-footer{
-  --bg: #0c0a16;
+  --bg: rgba(12, 10, 22, 0.1);
   --bg-soft: #14101f;
   --cream: #f4efe2;
   --gray: #8b8f98;
@@ -11,7 +11,11 @@
   --hairline: rgba(244,239,226,0.12);
 
   position: relative;
-  background: var(--bg);
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 5%, var(--bg) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 100%);
   overflow: hidden;
   padding-top: clamp(100px, 12vw, 160px);
   padding-bottom: clamp(20px, 3vw, 40px);
@@ -121,7 +125,7 @@
   margin: 0 0 8px;
 }
 .contact-email{
-  font-size: clamp(20px, 2.6vw, 30px);
+  font-size: clamp(16px, 1.8vw, 22px);
   font-weight: 700;
   color: var(--cream);
   text-decoration: underline;
