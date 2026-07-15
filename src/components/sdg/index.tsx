@@ -377,7 +377,10 @@ export default function SdgComponent() {
 
     // Fade in section after paint/measure delay
     gsap.to(sectionRef.current, { opacity: 1, duration: 0.4 });
-  }, { scope: sectionRef, dependencies: [isReady] });
+
+    // Refresh ScrollTrigger to recalculate heights and sizes
+    ScrollTrigger.refresh();
+  }, { scope: sectionRef, dependencies: [isReady], revertOnUpdate: true });
 
   return (
     <section ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none opacity-0">
@@ -394,7 +397,7 @@ export default function SdgComponent() {
                 brandRefs.current[idx] = el;
               }}
               /* Changed font from font-black tracking-tighter to font-semibold tracking-normal to match the reference site */
-              className="absolute left-0 font-sans font-semibold text-[6.5vw] md:text-[5vw] lg:text-[4.5vw] tracking-normal leading-none text-[#f9f6f0] select-none cursor-pointer whitespace-nowrap origin-left"
+              className="absolute left-0 font-sans font-semibold text-[6.5vw] md:text-[5vw] lg:text-[4.5vw] tracking-normal leading-none text-[#f9f6f0] select-none cursor-pointer whitespace-nowrap origin-left pointer-events-auto"
               onClick={() => {
                 const scrollTriggerInstance = ScrollTrigger.getAll().find(
                   (st) => st.trigger === sectionRef.current

@@ -79,16 +79,31 @@ export default function Team() {
     offset: ["start start", "end end"],
   });
 
-  // Scale: 1 → 45 (zooms massively into the M, spread over more scroll)
-  const heroScale = useTransform(scrollYProgress, [0, 0.55], [1, 45]);
-  // Opacity: visible → gone
-  const heroOpacity = useTransform(scrollYProgress, [0.25, 0.5], [1, 0]);
+  // Scale: 1 → 45
+  const heroScale = useTransform(scrollYProgress, [0, 0.6], [1, 45]);
+  // Opacity: visible → gone (overlapping with card entry)
+  const heroOpacity = useTransform(scrollYProgress, [0.3, 0.55], [1, 0]);
+  // Blur: 0px → 20px (diffuses the text as it zooms close)
+  const heroBlur = useTransform(scrollYProgress, [0.25, 0.55], ["blur(0px)", "blur(20px)"]);
   // Curtains fade out
   const curtainOpacity = useTransform(scrollYProgress, [0, 0.35], [0.85, 0]);
 
-  /* ── Team grid transforms (scroll 0.55 → 0.8) ── */
-  const teamOpacity = useTransform(scrollYProgress, [0.52, 0.68], [0, 1]);
-  const teamY = useTransform(scrollYProgress, [0.52, 0.72], [80, 0]);
+  /* ── Staggered Team grid transforms ── */
+  const labelOpacity = useTransform(scrollYProgress, [0.40, 0.54], [0, 1]);
+  const labelY = useTransform(scrollYProgress, [0.40, 0.54], [40, 0]);
+
+  const cardOpacity0 = useTransform(scrollYProgress, [0.43, 0.57], [0, 1]);
+  const cardOpacity1 = useTransform(scrollYProgress, [0.46, 0.60], [0, 1]);
+  const cardOpacity2 = useTransform(scrollYProgress, [0.49, 0.63], [0, 1]);
+  const cardOpacity3 = useTransform(scrollYProgress, [0.52, 0.66], [0, 1]);
+
+  const cardY0 = useTransform(scrollYProgress, [0.43, 0.57], [60, 0]);
+  const cardY1 = useTransform(scrollYProgress, [0.46, 0.60], [60, 0]);
+  const cardY2 = useTransform(scrollYProgress, [0.49, 0.63], [60, 0]);
+  const cardY3 = useTransform(scrollYProgress, [0.52, 0.66], [60, 0]);
+
+  const cardOpacities = [cardOpacity0, cardOpacity1, cardOpacity2, cardOpacity3];
+  const cardYs = [cardY0, cardY1, cardY2, cardY3];
 
   /* ── Entry animations ── */
   const titleContainerVariants = {
@@ -150,6 +165,7 @@ export default function Team() {
           style={{
             scale: heroScale,
             opacity: heroOpacity,
+            filter: heroBlur,
             transformOrigin: "54% 61%",
           }}
         >
@@ -194,15 +210,12 @@ export default function Team() {
           </div>
         </motion.div>
 
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center z-20 px-6 md:px-12 bg-[#090416]"
-          style={{ opacity: teamOpacity, y: teamY }}
-        >
+        <div className="absolute inset-0 flex items-center justify-center z-20 px-6 md:px-12 bg-transparent">
           <div className="w-full max-w-6xl">
             {/* Section label */}
             <motion.p
               className="text-center text-[#FAF8F5]/50 text-sm md:text-base tracking-[0.3em] uppercase font-sans font-medium mb-10 md:mb-14"
-              style={{ opacity: teamOpacity }}
+              style={{ opacity: labelOpacity, y: labelY }}
             >
               The Team
             </motion.p>
@@ -213,7 +226,10 @@ export default function Team() {
                 <motion.div
                   key={member.name}
                   className="group relative flex flex-col rounded-2xl border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm transition-all duration-500 hover:border-white/[0.15] hover:bg-white/[0.07] overflow-hidden"
-                  style={{ opacity: teamOpacity }}
+                  style={{
+                    opacity: cardOpacities[i] || 1,
+                    y: cardYs[i] || 0
+                  }}
                 >
                   {/* Photo area */}
                   <div className="relative w-full aspect-[3/4] overflow-hidden m-3 md:m-4 rounded-xl" style={{ width: 'calc(100% - 1.5rem)', marginLeft: '0.75rem' }}>
@@ -277,30 +293,8 @@ export default function Team() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Scroll hint (visible only at the very top) */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
-          style={{
-            opacity: useTransform(scrollYProgress, [0, 0.08], [1, 0]),
-          }}
-        >
-          <span className="text-[#FAF8F5]/30 text-xs tracking-[0.2em] uppercase font-sans">
-            Scroll to explore
-          </span>
-          <motion.div
-            className="w-5 h-8 rounded-full border border-[#FAF8F5]/20 flex items-start justify-center p-1.5"
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <motion.div
-              className="w-1 h-1.5 rounded-full bg-[#FAF8F5]/50"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.div>
-        </motion.div>
       </div>
     </div>
   );

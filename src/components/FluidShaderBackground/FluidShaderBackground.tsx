@@ -172,6 +172,7 @@ export default function FluidShaderBackground() {
   const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const logoContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -282,11 +283,19 @@ export default function FluidShaderBackground() {
   /* Scroll zoom for team page - optimized using direct DOM manipulation to bypass React render passes */
   useEffect(() => {
     const container = containerRef.current;
+    const logoContainer = logoContainerRef.current;
+    const canvas = canvasRef.current;
     if (!container) return;
 
     if (pathname !== "/team") {
-      container.style.transform = "scale(1)";
       container.style.opacity = "1";
+      if (logoContainer) {
+        logoContainer.style.transform = "scale(1)";
+        logoContainer.style.opacity = "1";
+      }
+      if (canvas) {
+        canvas.style.opacity = "0.45";
+      }
       return;
     }
 
@@ -295,15 +304,27 @@ export default function FluidShaderBackground() {
       if (scrollableHeight <= 0) return;
 
       const progress = window.scrollY / scrollableHeight;
-      const scaleProgress = Math.min(Math.max(progress / 0.55, 0), 1);
+      const scaleProgress = Math.min(Math.max(progress / 0.6, 0), 1);
       const scale = 1 + scaleProgress * 44;
-      let opacity = 1;
-      if (progress > 0.25) {
-        opacity = 1 - Math.min((progress - 0.25) / 0.25, 1);
+      
+      let logoOpacity = 1;
+      if (progress > 0.3) {
+        logoOpacity = 1 - Math.min((progress - 0.3) / 0.25, 1);
       }
 
-      container.style.transform = `scale(${scale})`;
-      container.style.opacity = `${opacity}`;
+      let canvasOpacity = 0.45;
+      if (progress > 0.3) {
+        const fadeProgress = Math.min((progress - 0.3) / 0.20, 1);
+        canvasOpacity = 0.45 * (1 - fadeProgress);
+      }
+
+      if (logoContainer) {
+        logoContainer.style.transform = `scale(${scale})`;
+        logoContainer.style.opacity = `${logoOpacity}`;
+      }
+      if (canvas) {
+        canvas.style.opacity = `${canvasOpacity}`;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -321,8 +342,13 @@ export default function FluidShaderBackground() {
 
       {/* 2. SVG Logo in the middle. Filled with an animated electric gradient stop-set. */}
       <div
+        ref={logoContainerRef}
         className="pointer-events-none fixed inset-0 flex items-center justify-center select-none"
-        style={{ zIndex: -10 }}
+        style={{
+          zIndex: -10,
+          transformOrigin: "center center",
+          willChange: "transform",
+        }}
       >
         <svg
           viewBox="0 0 895 1000"
