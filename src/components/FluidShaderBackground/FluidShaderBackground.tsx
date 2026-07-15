@@ -1,7 +1,7 @@
 // src/components/FluidShaderBackground/FluidShaderBackground.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
 const VERTEX_SHADER_SOURCE = `
@@ -172,7 +172,7 @@ export default function FluidShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (pathname === "/team") return;
+    // if (pathname === "/team") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -276,9 +276,41 @@ export default function FluidShaderBackground() {
     };
   }, [pathname]);
 
-  if (pathname === "/team") return null;
+  // if (pathname === "/team") return null;
 
-  return (
+  /* Scroll zoom for team page*/
+  const [bgScale, setBgScale] = useState(1);
+  const [bgOpacity, setBgOpacity] = useState(1);
+
+  useEffect(() => {
+    if (pathname !== "/team") {
+      setBgScale(1);
+      setBgOpacity(1);
+      return;
+    }
+
+    const handleScroll = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollableHeight <= 0) return;
+
+      const progress = window.scrollY / scrollableHeight;
+      const scaleProgress = Math.min(Math.max(progress / 0.55, 0), 1);
+      const scale = 1 + scaleProgress * 44;
+      let opacity = 1;
+      if (progress > 0.25) {
+        opacity = 1 - Math.min((progress - 0.25) / 0.25, 1);
+      }
+
+      setBgScale(scale);
+      setBgOpacity(opacity);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // initial
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
+
+  const content = (
     <>
       {/* 1. Deep premium CSS gradient background layer */}
       <div
@@ -370,4 +402,26 @@ export default function FluidShaderBackground() {
       </svg>
     </>
   );
+
+  // On /team, wrap everything in a scaling container
+  if (pathname === "/team") {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -30,
+          transform: `scale(${bgScale})`,
+          transformOrigin: "center center",
+          opacity: bgOpacity,
+          willChange: "transform, opacity",
+          pointerEvents: "none",
+        }}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 }
