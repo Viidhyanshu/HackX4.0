@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useScroll, useVelocity, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { useState, useEffect } from "react";
+import { AnimatePresence, motion, useScroll, useVelocity, useTransform, useSpring } from "framer-motion";
+import { useState } from "react";
 import WaterRippleImage from "@/components/WaterRippleImage";
 
 const PROJECTS = [
@@ -144,37 +144,29 @@ const FILTERS = [
   ["Experiential", "5"],
 ];
 
+const NEUTRAL =
+  "polygon(0% 0%, 33.3% 0%, 66.7% 0%, 100% 0%, 100% 100%, 66.7% 100%, 33.3% 100%, 0% 100%)";
+const DOWN =
+  "polygon(0% 1.2%, 33.3% 0.13%, 66.7% 0.13%, 100% 1.2%, 100% 100%, 66.7% 99.87%, 33.3% 99.87%, 0% 100%)";
+const UP =
+  "polygon(0% 0%, 33.3% 1.07%, 66.7% 1.07%, 100% 0%, 100% 98.8%, 66.7% 99.13%, 33.3% 99.13%, 0% 98.8%)";
+
 export default function Home() {
   const [activeProject, setActiveProject] = useState(PROJECTS[0]);
   const [hoveredProject, setHoveredProject] = useState<typeof PROJECTS[0] | null>(null);
   const { scrollYProgress, scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
-  const safeVelocity = useMotionValue(0);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-    }
-    const mountedTime = Date.now();
-    return scrollVelocity.on("change", (latestVelocity) => {
-      // Ignore massive scroll jumps on initial load for the first 500ms
-      if (Date.now() - mountedTime > 500) {
-        safeVelocity.set(latestVelocity);
-      }
-    });
-  }, [scrollVelocity, safeVelocity]);
-
-  const smoothVelocity = useSpring(safeVelocity, {
-    damping: 50,
-    stiffness: 400
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 100,
+    stiffness: 200,
   });
 
-  const clipPathPolygon = useTransform(smoothVelocity, [-400, 0, 400], [
-    "polygon(0% 2%, 12.5% 1.125%, 25% 0.5%, 37.5% 0.125%, 50% 0%, 62.5% 0.125%, 75% 0.5%, 87.5% 1.125%, 100% 2%, 100% 100%, 87.5% 99.125%, 75% 98.5%, 62.5% 98.125%, 50% 98%, 37.5% 98.125%, 25% 98.5%, 12.5% 99.125%, 0% 100%)",
-    "polygon(0% 0%, 12.5% 0%, 25% 0%, 37.5% 0%, 50% 0%, 62.5% 0%, 75% 0%, 87.5% 0%, 100% 0%, 100% 100%, 87.5% 100%, 75% 100%, 62.5% 100%, 50% 100%, 37.5% 100%, 25% 100%, 12.5% 100%, 0% 100%)",
-    "polygon(0% 0%, 12.5% 0.875%, 25% 1.5%, 37.5% 1.875%, 50% 2%, 62.5% 1.875%, 75% 1.5%, 87.5% 0.875%, 100% 0%, 100% 98%, 87.5% 98.875%, 75% 99.5%, 62.5% 99.875%, 50% 100%, 37.5% 99.875%, 25% 99.5%, 12.5% 98.875%, 0% 98%)"
-  ]);
+  const clipPathPolygon = useTransform(smoothVelocity, [-400, 0, 400], [UP, NEUTRAL, DOWN]);
+
+  if (typeof window !== "undefined") {
+    window.history.scrollRestoration = "manual";
+  }
 
   return (
     <main className="min-h-screen overflow-x-clip bg-[#051236] text-[#f3f0e6]">
@@ -228,7 +220,6 @@ export default function Home() {
             <motion.article
               key={project.id}
               className="mb-4 break-inside-avoid"
-              style={{ willChange: "transform, opacity" }}
               initial={{ 
                 opacity: 0, 
                 y: (index < 3 || (index >= 6 && index < 9)) ? "100vh" : 200, 
@@ -250,11 +241,9 @@ export default function Home() {
                 className="cursor-crosshair overflow-hidden bg-[#0d1424] transition-opacity duration-500 relative"
                 style={{ 
                   opacity: hoveredProject && hoveredProject.id !== project.id ? 0.3 : 1,
-                  // Applying an animated polygon clip to every card forces all
-                  // images into repaint-heavy layers while scrolling.
-                  ...(hoveredProject?.id === project.id
-                    ? { clipPath: clipPathPolygon, WebkitClipPath: clipPathPolygon }
-                    : {})
+                  clipPath: clipPathPolygon,
+                  WebkitClipPath: clipPathPolygon,
+                  willChange: "clip-path",
                 }}
                 onMouseEnter={() => {
                   setActiveProject(project);
