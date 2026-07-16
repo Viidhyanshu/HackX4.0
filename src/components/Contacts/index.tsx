@@ -220,7 +220,7 @@ export default function Contacts() {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="w-full text-white font-sans relative overflow-x-hidden">
+    <div ref={containerRef} className="w-full text-white font-sans relative overflow-x-clip">
 
       {/* SECTION 1: HERO (Minimal editorial layout) */}
       <section className="relative w-full min-h-[85vh] lg:min-h-0 flex flex-col justify-between pt-2 pb-6 px-6 md:px-12 lg:px-20 max-w-[1600px] mx-auto">
