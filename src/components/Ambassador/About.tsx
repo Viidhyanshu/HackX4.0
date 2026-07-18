@@ -1,0 +1,86 @@
+"use client";
+
+import React from "react";
+import { motion } from "framer-motion";
+
+export default function About() {
+  return (
+    <section className="relative w-full overflow-hidden py-16 md:py-24">
+      {/* Large outlined background text */}
+      <div className="absolute inset-0 flex items-center justify-center z-[1] pointer-events-none select-none overflow-hidden">
+        <span
+          className="block font-sans font-black uppercase text-center tracking-wider"
+          style={{
+            fontSize: "clamp(3.5rem, 14vw, 16rem)",
+            WebkitTextStroke: "1px rgba(255,255,255,0.15)",
+            color: "transparent",
+            opacity: 0.8,
+            letterSpacing: "0.05em",
+          }}
+        >
+          ABOUT
+        </span>
+      </div>
+
+      {/* Main Container */}
+      <div className="relative z-10 flex items-center justify-center px-6 md:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative max-w-4xl w-full"
+        >
+          {/* Section Header */}
+          <div className="text-center mb-8">
+            <h2 className="font-sans font-extrabold uppercase text-4xl md:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-white via-[#B86EF9] to-white/90">
+              About
+            </h2>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#D242D7] to-[#B86EF9] mx-auto mt-3 rounded-full" />
+          </div>
+
+          {/* Main Card with Glassmorphism */}
+          <div
+            className="relative rounded-3xl p-8 md:p-12 overflow-hidden border border-white/10"
+            style={{
+              background: "rgba(0, 0, 0, 0.45)",
+              backdropFilter: "blur(20px)",
+              boxShadow:
+                "0 25px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.15)",
+            }}
+          >
+            {/* Ambient Background Glow inside Card */}
+            <div 
+              className="absolute -top-24 -left-24 w-48 h-48 rounded-full pointer-events-none select-none z-0 filter blur-[80px] opacity-25"
+              style={{
+                background: "var(--color-magenta, #D242D7)",
+              }}
+            />
+            <div 
+              className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full pointer-events-none select-none z-0 filter blur-[80px] opacity-20"
+              style={{
+                background: "var(--color-violet, #7801FF)",
+              }}
+            />
+
+            <div className="relative z-10 flex flex-col gap-6 md:gap-8">
+              <p
+                className="font-sans text-white/95 text-lg md:text-xl lg:text-2xl leading-relaxed font-semibold text-center"
+                style={{ letterSpacing: "0.01em" }}
+              >
+                Our Campus Ambassador Program is an incredible opportunity for students to represent our college and help us spread the word about our mission. As a Campus Ambassador, you will gain valuable experience, enhance your leadership skills, and connect with like-minded individuals.
+              </p>
+              
+              <p
+                className="font-sans text-white/80 text-base md:text-lg lg:text-xl leading-relaxed font-normal text-center"
+                style={{ letterSpacing: "0.01em" }}
+              >
+                You will be the face of our hackathon on your campus, organizing events, sharing our story, and promoting our values. This role is perfect for proactive, enthusiastic, and passionate students who want to make a difference.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
