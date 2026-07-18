@@ -166,10 +166,8 @@ export default function Timeline() {
         (direction < 0 && nearest <= 0);
       if (atEdge && !isSnappingRef.current) return;
 
-      // Take over scrolling entirely: block Lenis and native scroll for this gesture
+      // Take over scrolling: one checkpoint per gesture
       e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
 
       if (cooldownRef.current || isSnappingRef.current) return;
 
@@ -183,11 +181,10 @@ export default function Timeline() {
       }, 900);
     };
 
-    // Capture phase + non-passive so we run before Lenis and can cancel the event
-    window.addEventListener("wheel", handleWheel, { passive: false, capture: true });
+    window.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
-      window.removeEventListener("wheel", handleWheel, { capture: true } as any);
+      window.removeEventListener("wheel", handleWheel);
     };
   }, [mounted, lenis]);
 
