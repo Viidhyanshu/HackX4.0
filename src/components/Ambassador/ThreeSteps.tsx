@@ -3,10 +3,17 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function ThreeSteps() {
   const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isReady, setIsReady] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -15,6 +22,13 @@ export default function ThreeSteps() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 300); // 300ms ensures it mounts after Themes (150ms) to prevent ScrollTrigger race conditions
+    return () => clearTimeout(timer);
   }, []);
 
   const steps = [
@@ -38,8 +52,78 @@ export default function ThreeSteps() {
     },
   ];
 
+  useGSAP(
+    () => {
+      if (!isReady) return;
+
+      const card1 = cardRefs.current[0];
+      const card2 = cardRefs.current[1];
+      const card3 = cardRefs.current[2];
+
+      if (!card1 || !card2 || !card3) return;
+
+      const isMobileSize = window.innerWidth < 768;
+
+      // Final offset positions
+      const c1X = isMobileSize ? -25 : -50;
+      const c1Y = isMobileSize ? -20 : -35;
+      
+      const c2X = 0;
+      const c2Y = 0;
+
+      const c3X = isMobileSize ? 25 : 50;
+      const c3Y = isMobileSize ? 20 : 35;
+
+      // 1. Initial State Setup
+      // Card 1 is already in its final position
+      gsap.set(card1, { x: c1X, y: c1Y, rotation: 0, opacity: 1 });
+
+      // Card 2 starts down & right (off-screen)
+      gsap.set(card2, { x: c2X + 150, y: 500, rotation: 0, opacity: 0 });
+
+      // Card 3 starts down & right (off-screen)
+      gsap.set(card3, { x: c3X + 150, y: 500, rotation: 0, opacity: 0 });
+
+      // 2. Create ScrollTrigger timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=150%", // How long to pin and scroll
+          scrub: 1, // Smooth scrub matching the scroll position
+          pin: true, // Pin the entire section
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // Animate Card 2 entering
+      tl.to(card2, {
+        x: c2X,
+        y: c2Y,
+        rotation: 0,
+        opacity: 1,
+        ease: "power2.out",
+        duration: 1,
+      });
+
+      // Animate Card 3 entering
+      tl.to(card3, {
+        x: c3X,
+        y: c3Y,
+        rotation: 0,
+        opacity: 1,
+        ease: "power2.out",
+        duration: 1,
+      });
+
+      // Force ScrollTrigger to refresh after this trigger is created
+      ScrollTrigger.refresh();
+    },
+    { scope: sectionRef, dependencies: [isReady] }
+  );
+
   return (
-    <section className="relative w-full py-20 md:py-32 lg:py-40 bg-transparent overflow-hidden select-none">
+    <section ref={sectionRef} className="relative w-full h-screen bg-transparent overflow-hidden select-none flex items-center">
       {/* Background Soft Glows */}
       <div
         className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[450px] h-[450px] rounded-full pointer-events-none filter blur-[150px] opacity-20"
@@ -54,93 +138,63 @@ export default function ThreeSteps() {
         }}
       />
 
-      <div className="max-w-[1250px] mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-start justify-between gap-20 md:gap-12 md:pt-16">
+      <div className="max-w-[1250px] mx-auto px-6 md:px-12 flex w-full flex-col-reverse md:flex-row items-start justify-between gap-20 md:gap-12 md:pt-16">
         {/* Left Column: Stacked Interactive Cards */}
         <div 
-          ref={containerRef}
-          className="relative w-[280px] h-[360px] sm:w-[320px] sm:h-[400px] md:w-[360px] md:h-[460px] flex items-center justify-center"
+          className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] flex items-center justify-center"
         >
           {steps.map((step, idx) => {
-            // Card visual offset positions
-            let xOffset = 0;
-            let yOffset = 0;
-            let rotation = 0;
-
-            if (idx === 0) {
-              xOffset = isMobile ? -25 : -50;
-              yOffset = isMobile ? -20 : -35;
-              rotation = -6;
-            } else if (idx === 1) {
-              xOffset = 0;
-              yOffset = 0;
-              rotation = -3;
-            } else {
-              xOffset = isMobile ? 25 : 50;
-              yOffset = isMobile ? 20 : 35;
-              rotation = 0;
-            }
-
             return (
-              <motion.div
+              <div
                 key={step.num}
-                initial={{ opacity: 0, scale: 0.8, x: 0, y: 0, rotate: 0 }}
-                whileInView={{
-                  opacity: 1,
-                  scale: 1,
-                  x: xOffset,
-                  y: yOffset,
-                  rotate: rotation,
+                ref={(el) => {
+                  cardRefs.current[idx] = el;
                 }}
-                viewport={{ once: true, margin: "-100px" }}
-                whileHover={{
-                  scale: 1.05,
-                  x: xOffset * 1.1,
-                  y: yOffset * 1.1,
-                  rotate: rotation,
-                  zIndex: 50,
-                  boxShadow: "0 25px 50px rgba(184, 110, 249, 0.25)",
-                  borderColor: "rgba(184, 110, 249, 0.35)",
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 80,
-                  damping: 15,
-                  delay: idx * 0.15,
-                }}
-                className="absolute inset-0 rounded-3xl p-6 md:p-8 border border-white/10 flex flex-col justify-between cursor-pointer origin-center transition-colors duration-300"
+                className="absolute inset-0 cursor-pointer"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)",
-                  backdropFilter: "blur(20px)",
                   zIndex: 10 + idx,
                 }}
               >
-                {/* Top of Card: Step Number */}
-                <div className="flex justify-between items-start">
-                  <span className={`font-sans font-black text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r ${step.color} select-none`}>
-                    {step.num}
-                  </span>
-                  
-                  {/* Subtle HackX Logo Watermark */}
-                  <div className="opacity-10 w-12 h-12 relative pointer-events-none select-none">
-                    <Image
-                      src="/assets/logos/HACKX White@2x.png"
-                      alt="HackX watermark"
-                      fill
-                      className="object-contain"
-                    />
+                <motion.div
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 25px 50px rgba(184, 110, 249, 0.25)",
+                    borderColor: "rgba(184, 110, 249, 0.35)",
+                  }}
+                  className="w-full h-full p-6 md:p-8 border border-white/10 flex flex-col justify-between origin-center transition-colors "
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                    backdropFilter: "blur(20px)",
+                  }}
+                >
+                  {/* Top of Card: Step Number */}
+                  <div className="flex justify-between items-start">
+                    <span className={`font-sans font-black text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r ${step.color} select-none`}>
+                      {step.num}
+                    </span>
+                    
+                    {/* Subtle HackX Logo Watermark */}
+                    <div className="opacity-10 w-12 h-12 relative pointer-events-none select-none">
+                      <Image
+                        src="/assets/logos/HACKX White@2x.png"
+                        alt="HackX watermark"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {/* Bottom of Card: Step Content */}
-                <div className="flex flex-col gap-2 mt-auto">
-                  <h4 className="font-sans font-black text-xl md:text-2xl uppercase tracking-wide text-white leading-tight">
-                    {step.title}
-                  </h4>
-                  <p className="font-sans text-white/60 text-xs md:text-sm leading-relaxed">
-                    {step.desc}
-                  </p>
-                </div>
-              </motion.div>
+                  {/* Bottom of Card: Step Content */}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    <h4 className="font-sans font-black text-xl md:text-2xl uppercase tracking-wide text-white leading-tight">
+                      {step.title}
+                    </h4>
+                    <p className="font-sans text-white/60 text-xs md:text-sm leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
             );
           })}
         </div>
