@@ -54,7 +54,7 @@ export default function ThreeSteps() {
         }}
       />
 
-      <div className="max-w-[1250px] mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-center justify-between gap-20 md:gap-12">
+      <div className="max-w-[1250px] mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-start justify-between gap-20 md:gap-12 md:pt-16">
         {/* Left Column: Stacked Interactive Cards */}
         <div 
           ref={containerRef}
@@ -146,7 +146,7 @@ export default function ThreeSteps() {
         </div>
 
         {/* Right Column: Heading Text */}
-        <div className="flex-1 max-w-[600px] text-center md:text-left">
+        <div className="flex-1 max-w-[600px] text-center md:text-right md:-translate-y-8">
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -154,10 +154,10 @@ export default function ThreeSteps() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col gap-4"
           >
-            <h2 className="font-sans font-black uppercase text-4xl sm:text-5xl md:text-6xl text-white tracking-normal leading-[1.0] flex flex-col gap-2">
+            <h2 className="font-sans font-black uppercase text-4xl sm:text-5xl md:text-6xl text-white tracking-normal leading-[1.0] flex flex-col gap-2 items-center md:items-end">
               <span>CAMPUS</span>
               <span>AMBASSADOR</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D242D7] via-[#B86EF9] to-white/95 leading-[1.1] pb-1">
+              <span className="leading-[1.1] pb-1 text-white">
                 IN 3 SIMPLE STEPS
               </span>
             </h2>
