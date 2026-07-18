@@ -33,10 +33,9 @@ export default function About() {
         >
           {/* Section Header */}
           <div className="text-center mb-8">
-            <h2 className="font-sans font-extrabold uppercase text-4xl md:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-white via-[#B86EF9] to-white/90">
+            <h2 className="font-sans font-extrabold uppercase text-[39px] md:text-[51px] lg:text-[63px] tracking-wide text-white">
               About
             </h2>
-            <div className="w-16 h-1 bg-gradient-to-r from-[#D242D7] to-[#B86EF9] mx-auto mt-3 rounded-full" />
           </div>
 
           {/* Main Card with Glassmorphism */}
@@ -65,14 +64,14 @@ export default function About() {
 
             <div className="relative z-10 flex flex-col gap-6 md:gap-8">
               <p
-                className="font-sans text-white/95 text-lg md:text-xl lg:text-2xl leading-relaxed font-semibold text-center"
+                className="font-sans text-white/90 text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
                 style={{ letterSpacing: "0.01em" }}
               >
                 Our Campus Ambassador Program is an incredible opportunity for students to represent our college and help us spread the word about our mission. As a Campus Ambassador, you will gain valuable experience, enhance your leadership skills, and connect with like-minded individuals.
               </p>
               
               <p
-                className="font-sans text-white/80 text-base md:text-lg lg:text-xl leading-relaxed font-normal text-center"
+                className="font-sans text-white/90 text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
                 style={{ letterSpacing: "0.01em" }}
               >
                 You will be the face of our hackathon on your campus, organizing events, sharing our story, and promoting our values. This role is perfect for proactive, enthusiastic, and passionate students who want to make a difference.
