@@ -155,12 +155,7 @@ export default function ThreeSteps() {
                   zIndex: 10 + idx,
                 }}
               >
-                <motion.div
-                  whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 25px 50px rgba(184, 110, 249, 0.25)",
-                    borderColor: "rgba(184, 110, 249, 0.35)",
-                  }}
+                <div
                   className="w-full h-full p-6 md:p-8 border border-white/10 flex flex-col justify-between origin-center transition-colors "
                   style={{
                     background: "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)",
@@ -193,7 +188,7 @@ export default function ThreeSteps() {
                       {step.desc}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               </div>
             );
           })}
@@ -215,6 +210,9 @@ export default function ThreeSteps() {
                 IN 3 SIMPLE STEPS
               </span>
             </h2>
+            <p className="font-sans text-white/60 text-sm md:text-base mt-4 max-w-[480px] leading-relaxed md:ml-auto text-center md:text-left">
+              As a Campus Ambassador, you will be responsible for promoting our brand on campus, organizing and hosting events and workshops, engaging with students and gathering feedback, and representing our company at campus fairs and events.
+            </p>
           </motion.div>
         </div>
       </div>
