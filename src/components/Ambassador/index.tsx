@@ -8,6 +8,7 @@ import PuzzleJoin from "@/components/PuzzleJoin";
 import FAQ from "@/components/FAQ";
 import WhyApply from "@/components/Ambassador/WhyApply";
 import About from "@/components/Ambassador/About";
+import ThreeSteps from "@/components/Ambassador/ThreeSteps";
 
 const AMBASSADOR_FAQ_DATA = [
   {
@@ -161,6 +162,11 @@ export default function Ambassador() {
       {/* Themes Component Section */}
       <section id="themes" className="relative w-full z-10">
         <Themes />
+      </section>
+
+      {/* Three Steps Section */}
+      <section id="steps" className="relative w-full z-10">
+        <ThreeSteps />
       </section>
 
       {/* Puzzle Component Section */}
