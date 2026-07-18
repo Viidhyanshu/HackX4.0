@@ -76,9 +76,12 @@ const FRAGMENT_SHADER_SOURCE = `
     vec2 orbitCenter = vec2(0.2, 0.0);
     float trailGlow = 0.0;
 
-    for (int i = 0; i < 22; i++) {
+    // Dense sampling makes the wake a continuous ribbon when the orbit crosses
+    // the viewport edge. Normalize each sample so the total brightness stays
+    // consistent with the previous 22-sample trail.
+    for (int i = 0; i < 42; i++) {
       float index = float(i);
-      float age = index / 21.0;
+      float age = index / 41.0;
       // The tail samples further apart as it ages, giving it a natural fade
       // instead of a stack of visible circular stamps.
       float trailPhase = phase - age * 2.85;
@@ -90,7 +93,7 @@ const FRAGMENT_SHADER_SOURCE = `
       float verticalStretch = mix(1.60, 0.42, age);
       vec2 ellipse = vec2(toTrail.x * horizontalCompression, toTrail.y * verticalStretch);
       float width = mix(44.0, 5.0, age);
-      float fade = exp(-age * 1.65) * mix(0.78, 0.07, age);
+      float fade = exp(-age * 1.65) * mix(0.78, 0.07, age) * 0.52;
       trailGlow += exp(-dot(ellipse, ellipse) * width) * fade;
     }
 
