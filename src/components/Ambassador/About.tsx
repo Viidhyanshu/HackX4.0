@@ -1,9 +1,42 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const paragraph1 =
+    "Our Campus Ambassador Program is an incredible opportunity for students to represent our college and help us spread the word about our mission. As a Campus Ambassador, you will gain valuable experience, enhance your leadership skills, and connect with like-minded individuals.";
+
+  const paragraph2 =
+    "You will be the face of our hackathon on your campus, organizing events, sharing our story, and promoting our values. This role is perfect for proactive, enthusiastic, and passionate students who want to make a difference.";
+
+  const words1 = paragraph1.split(" ");
+  const words2 = paragraph2.split(" ");
+
+  useGSAP(
+    () => {
+      gsap.to(".about-word", {
+        opacity: 1,
+        stagger: 0.02,
+        ease: "power1.out",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 75%",
+          end: "bottom 55%",
+          scrub: 0.5,
+        },
+      });
+    },
+    { scope: containerRef }
+  );
+
   return (
     <section className="relative w-full overflow-hidden py-16 md:py-24">
       {/* Large outlined background text */}
@@ -40,6 +73,7 @@ export default function About() {
 
           {/* Main Card with Glassmorphism */}
           <div
+            ref={containerRef}
             className="relative rounded-3xl p-8 md:p-12 overflow-hidden border border-white/10"
             style={{
               background: "rgba(0, 0, 0, 0.45)",
@@ -64,17 +98,31 @@ export default function About() {
 
             <div className="relative z-10 flex flex-col gap-6 md:gap-8">
               <p
-                className="font-sans text-white/90 text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
+                className="font-sans text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
                 style={{ letterSpacing: "0.01em" }}
               >
-                Our Campus Ambassador Program is an incredible opportunity for students to represent our college and help us spread the word about our mission. As a Campus Ambassador, you will gain valuable experience, enhance your leadership skills, and connect with like-minded individuals.
+                {words1.map((word, idx) => (
+                  <span
+                    key={idx}
+                    className="about-word opacity-[0.20] inline-block mr-[0.25em]"
+                  >
+                    {word}
+                  </span>
+                ))}
               </p>
               
               <p
-                className="font-sans text-white/90 text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
+                className="font-sans text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium text-center"
                 style={{ letterSpacing: "0.01em" }}
               >
-                You will be the face of our hackathon on your campus, organizing events, sharing our story, and promoting our values. This role is perfect for proactive, enthusiastic, and passionate students who want to make a difference.
+                {words2.map((word, idx) => (
+                  <span
+                    key={idx}
+                    className="about-word opacity-[0.20] inline-block mr-[0.25em]"
+                  >
+                    {word}
+                  </span>
+                ))}
               </p>
             </div>
           </div>
