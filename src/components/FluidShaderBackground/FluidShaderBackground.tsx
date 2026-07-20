@@ -318,7 +318,7 @@ export default function FluidShaderBackground() {
         logoContainer.style.opacity = "1";
       }
       if (canvas) {
-        canvas.style.opacity = "0.45";
+        canvas.style.opacity = pathname === "/timeline" ? "0.65" : "0.45";
       }
       return;
     }
@@ -354,6 +354,71 @@ export default function FluidShaderBackground() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // initial
     return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
+
+  /* Scroll transition for Timeline page *//////////////
+  useEffect(() => {
+    if (pathname !== "/timeline") return;
+
+    const logoContainer = logoContainerRef.current;
+    shaderParams.current = { zoom: 1.25, colorTransition: 0.0 };
+
+    const interpolateHex = (color1: string, color2: string, factor: number) => {
+      const r1 = parseInt(color1.substring(1, 3), 16);
+      const g1 = parseInt(color1.substring(3, 5), 16);
+      const b1 = parseInt(color1.substring(5, 7), 16);
+      const r2 = parseInt(color2.substring(1, 3), 16);
+      const g2 = parseInt(color2.substring(3, 5), 16);
+      const b2 = parseInt(color2.substring(5, 7), 16);
+      const r = Math.round(r1 + factor * (r2 - r1));
+      const g = Math.round(g1 + factor * (g2 - g1));
+      const b = Math.round(b1 + factor * (b2 - b1));
+      const clampChannel = (val: number) => Math.min(Math.max(val, 0), 255);
+      return `#${clampChannel(r).toString(16).padStart(2, "0")}${clampChannel(g).toString(16).padStart(2, "0")}${clampChannel(b).toString(16).padStart(2, "0")}`;
+    };
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const timelineProgress = Math.min(Math.max(scrollY / 5500, 0), 1);
+      const targetZoom = 1.25 - timelineProgress * 0.7;
+      const angle = (scrollY - 500) * (Math.PI / 1000);
+      const targetColorTransition = Math.min(Math.max(0.5 - 0.5 * Math.cos(angle), 0), 1);
+      shaderParams.current.zoom = targetZoom;
+      shaderParams.current.colorTransition = targetColorTransition;
+      const fromColor = interpolateHex("#1f093f", "#001c13", targetColorTransition);
+      const viaColor = interpolateHex("#090416", "#000806", targetColorTransition);
+      const toColor = interpolateHex("#04020a", "#000403", targetColorTransition);
+      document.documentElement.style.setProperty("--bg-gradient-from", fromColor);
+      document.documentElement.style.setProperty("--bg-gradient-via", viaColor);
+      document.documentElement.style.setProperty("--bg-gradient-to", toColor);
+      const rotateDeg = targetColorTransition * 140;
+      document.documentElement.style.setProperty("--logo-hue-rotate", `${rotateDeg}deg`);
+      if (logoContainer) {
+        const logoStop0 = interpolateHex("#5200c7", "#005035", targetColorTransition);
+        const logoStop33 = interpolateHex("#ae73f2", "#30e5c8", targetColorTransition);
+        const logoStop66 = interpolateHex("#7801ff", "#00b590", targetColorTransition);
+        const logoStop100 = interpolateHex("#5200c7", "#005035", targetColorTransition);
+        logoContainer.style.setProperty("--x-color-stop-0", logoStop0);
+        logoContainer.style.setProperty("--x-color-stop-33", logoStop33);
+        logoContainer.style.setProperty("--x-color-stop-66", logoStop66);
+        logoContainer.style.setProperty("--x-color-stop-100", logoStop100);
+        const shadow1 = interpolateHex("#ae73f2", "#30e5c8", targetColorTransition);
+        const shadow2 = interpolateHex("#5200c7", "#005035", targetColorTransition);
+        logoContainer.style.setProperty("--x-shadow-1", shadow1);
+        logoContainer.style.setProperty("--x-shadow-2", shadow2);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.documentElement.style.setProperty("--logo-hue-rotate", "0deg");
+      document.documentElement.style.setProperty("--bg-gradient-from", "#1f093f");
+      document.documentElement.style.setProperty("--bg-gradient-via", "#090416");
+      document.documentElement.style.setProperty("--bg-gradient-to", "#04020a");
+    };
   }, [pathname]);
 
   /* Scroll transition for SDG section on homepage */
@@ -597,10 +662,10 @@ export default function FluidShaderBackground() {
         </svg>
       </div>
 
-      {/* 3. Transparent WebGL Canvas. Confined to max 90% of viewport and centered. */}
+      {/* 3. Transparent WebGL Canvas. Covers the entire viewport to prevent box clipping. */}
       <canvas
         ref={canvasRef}
-        className="pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] opacity-45"
+        className="pointer-events-none fixed inset-0 w-full h-full opacity-45"
         style={{ zIndex: -15 }}
       />
 
