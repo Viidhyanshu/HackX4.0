@@ -1,6 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const SDG_IMAGES = [
   { src: "/assets/sdg/sdg1.svg", alt: "Good Health and Well-being" },
@@ -16,26 +21,50 @@ const SDG_IMAGES = [
 
 export default function SdgMarquee() {
   const marqueeItems = [...SDG_IMAGES, ...SDG_IMAGES];
+  const scrollWrapperRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!scrollWrapperRef.current) return;
+
+    // Shift the marquee horizontally as page scrolls to create a dynamic speed effect
+    gsap.fromTo(
+      scrollWrapperRef.current,
+      { x: "10%" },
+      {
+        x: "-30%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: scrollWrapperRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.8,
+        },
+      }
+    );
+  }, { scope: scrollWrapperRef });
 
   return (
-    <div className="w-full py-6 select-none pointer-events-auto relative z-10 overflow-hidden mask-gradient">
-      {/* Marquee Track container */}
-      <div className="flex w-max animate-marquee hover:[animation-play-state:paused] cursor-pointer">
-        <div className="flex items-center gap-16 md:gap-24 px-8 md:px-12">
-          {marqueeItems.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex-shrink-0 flex items-center justify-center transition-all duration-300 hover:scale-105 hover:brightness-125 opacity-70 hover:opacity-100"
-            >
-              {/* Using native img for SVG assets */}
-              <img
-                src={item.src}
-                alt={item.alt}
-                className="h-14 sm:h-16 md:h-20 w-auto object-contain pointer-events-none"
-                draggable={false}
-              />
-            </div>
-          ))}
+    <div className="w-full py-6 select-none pointer-events-auto relative z-10 overflow-hidden">
+      {/* Scroll-driven wrapper */}
+      <div ref={scrollWrapperRef} className="w-full">
+        {/* Infinite scrolling track */}
+        <div className="flex w-max animate-marquee hover:[animation-play-state:paused] cursor-pointer">
+          <div className="flex items-center gap-16 md:gap-24 px-8 md:px-12">
+            {marqueeItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex-shrink-0 flex items-center justify-center transition-all duration-300 hover:scale-105 hover:brightness-125"
+              >
+                {/* Using native img for SVG assets */}
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="h-14 sm:h-16 md:h-20 w-auto object-contain pointer-events-none"
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
