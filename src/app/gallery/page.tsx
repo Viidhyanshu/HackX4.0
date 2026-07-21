@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useInView, useScroll, useSpring, useTransform, useVelocity, type MotionValue } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import WaterRippleImage from "@/components/WaterRippleImage";
 
 const getImageUrl = (imagePath: string) => {
@@ -9,8 +10,6 @@ const getImageUrl = (imagePath: string) => {
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
-  // Gallery cards never need the 5K-6K source files. The local WebP variants
-  // are capped at 1200px, which is sufficient for a 550px-wide card at 2x DPR.
   return imagePath
     .replace("/assets/images/", "/assets/images/gallery/")
     .replace(/\.(avif|jpe?g)$/i, ".webp");
@@ -311,6 +310,7 @@ function GalleryCard({
   scrollClipPath,
   onEnter,
   onLeave,
+  onClick,
 }: {
   project: Project;
   isActive: boolean;
@@ -319,6 +319,7 @@ function GalleryCard({
   scrollClipPath: MotionValue<string>;
   onEnter: () => void;
   onLeave: () => void;
+  onClick: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isNearViewport = useInView(cardRef, { margin: "200px 0px", amount: 0 });
@@ -328,6 +329,8 @@ function GalleryCard({
       <motion.div
         ref={cardRef}
         aria-label={project.title}
+        role="button"
+        tabIndex={0}
         className="cursor-crosshair overflow-hidden bg-transparent transition-opacity duration-500 relative"
         style={{
           opacity: isDimmed ? 0.3 : 1,
@@ -339,6 +342,8 @@ function GalleryCard({
         onPointerEnter={onEnter}
         onPointerLeave={onLeave}
         onPointerCancel={onLeave}
+        onClick={onClick}
+        onKeyDown={(e) => { if (e.key === "Enter") onClick(); }}
       >
         <WaterRippleImage imageUrl={project.image} isActive={isActive} priority={priority} />
       </motion.div>
@@ -349,14 +354,25 @@ function GalleryCard({
 export default function Home() {
   const [activeProject, setActiveProject] = useState(PROJECTS[0]);
   const [hoveredProject, setHoveredProject] = useState<typeof PROJECTS[0] | null>(null);
+  const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
   const smoothVelocity = useSpring(scrollVelocity, { damping: 60, stiffness: 380 });
   const scrollClipPath = useTransform(smoothVelocity, [-120, 0, 120], [UP, NEUTRAL, DOWN]);
 
-  // A card can remain beneath the pointer while the document moves, so
-  // pointerleave is not guaranteed to run. Clear the overlay on the first
-  // scroll event without maintaining a scroll-linked animation graph.
+  const closeLightbox = useCallback(() => setSelectedProject(null), []);
+
+  useEffect(() => {
+    if (!selectedProject) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeLightbox(); };
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
+  }, [selectedProject, closeLightbox]);
+
   useEffect(() => {
     if (!hoveredProject) return;
 
@@ -411,6 +427,73 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/90"
+              onClick={closeLightbox}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            />
+
+            <motion.div
+              className="relative z-10 flex flex-col items-center w-full max-w-[90vw] max-h-[90vh]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+              <div className="relative w-full max-h-[80vh] rounded-lg overflow-hidden">
+                <Image
+                  src={selectedProject.image}
+                  alt={selectedProject.title}
+                  width={0}
+                  height={0}
+                  sizes="90vw"
+                  unoptimized
+                  priority
+                  className="w-full h-auto max-h-[80vh] object-contain"
+                  style={{ height: "auto" }}
+                />
+              </div>
+
+              <motion.div
+                className="mt-6 text-center"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut", delay: 0.2 }}
+              >
+                <h2 className="font-sans leading-none [font-size:clamp(1.5rem,4vw,3rem)] font-bold tracking-tight">
+                  {selectedProject.hoverText.map((part, i) => (
+                    <span key={i} className={part.className}>{part.text}</span>
+                  ))}
+                </h2>
+                <p className="mt-2 text-sm uppercase tracking-[0.2em] opacity-50">{selectedProject.category}</p>
+                <p className="mt-3 max-w-md mx-auto text-base leading-relaxed opacity-70">
+                  {selectedProject.description}
+                </p>
+              </motion.div>
+
+              <button
+                onClick={closeLightbox}
+                className="absolute -top-12 right-0 text-white/60 hover:text-white transition-colors text-sm uppercase tracking-[0.2em]"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <section className="relative z-20 mx-auto w-full max-w-[1100px] px-6 pb-28 pt-48 sm:px-10 lg:px-0">
         <div className="columns-1 gap-4 md:columns-2">
           {PROJECTS.map((project, index) => (
@@ -426,6 +509,7 @@ export default function Home() {
                   setHoveredProject(project);
                 }}
               onLeave={() => setHoveredProject(null)}
+              onClick={() => setSelectedProject(project)}
             />
           ))}
         </div>
