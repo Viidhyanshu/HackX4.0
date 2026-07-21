@@ -4,23 +4,12 @@ import { AnimatePresence, motion, useScroll, useVelocity, useTransform, useSprin
 import { useState } from "react";
 import WaterRippleImage from "@/components/WaterRippleImage";
 
-const getImageUrl = (imagePath: string) => {
-  if (!imagePath) return "";
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
-  }
-  const domain = process.env.NEXT_PUBLIC_R2_PUBLIC_DOMAIN || "";
-  const cleanDomain = domain.replace(/\/$/, "");
-  const cleanPath = imagePath.replace(/^\//, "");
-  return `${cleanDomain}/${cleanPath}`;
-};
-
 const PROJECTS = [
   {
     id: "01",
     title: "Sonic Identity",
     category: "CGI Production",
-    image: "media/1784607985788_g8i8mb.avif",
+    image: "/assets/images/pic1_converted.avif",
     description: "A speculative visual identity for sound, rhythm, and the intimate technology that carries it.",
     hoverText: [
       { text: "Powered to Play All Day", className: "text-[#faebac]" }
@@ -30,7 +19,7 @@ const PROJECTS = [
     id: "02",
     title: "Solar Archive",
     category: "Experiential",
-    image: "media/1784608005475_xk2j89.avif",
+    image: "/assets/images/pic2_converted.avif",
     description: "An immersive installation designed around the warmth, scale, and quiet wonder of a manufactured sun.",
     hoverText: [
       { text: "Oriens Lum", className: "text-[#faebac]" },
@@ -41,7 +30,7 @@ const PROJECTS = [
     id: "03",
     title: "Soft Hardware",
     category: "Brand Design",
-    image: "media/1784608017647_eog9o3.avif",
+    image: "/assets/images/pic3_converted.avif",
     description: "A tactile system that gives a small everyday object a generous, almost architectural presence.",
     hoverText: [
       { text: "Soft Hardware ", className: "text-[#faebac]" },
@@ -52,7 +41,7 @@ const PROJECTS = [
     id: "04",
     title: "Night Signals",
     category: "Film",
-    image: "media/1784608028034_6t389r.avif",
+    image: "/assets/images/pic4_converted.avif",
     description: "A city-scale film installation that turns a familiar skyline into a live and luminous instrument.",
     hoverText: [
       { text: "Night ", className: "text-white" },
@@ -63,7 +52,7 @@ const PROJECTS = [
     id: "05",
     title: "New Rituals",
     category: "Campaign",
-    image: "media/1784608037097_g0elf9.avif",
+    image: "/assets/images/pic6_converted.avif",
     description: "A campaign study in slow gestures, dimensional light, and memorable forms of everyday connection.",
     hoverText: [
       { text: "New ", className: "text-[#faebac]" },
@@ -74,7 +63,7 @@ const PROJECTS = [
     id: "06",
     title: "Half Light",
     category: "CGI Production",
-    image: "media/1784608048555_etx2d.avif",
+    image: "/assets/images/pic7_converted.avif",
     description: "A monochrome image world that pairs quiet materiality with the restraint of editorial photography.",
     hoverText: [
       { text: "Half Light", className: "text-[#faebac]" }
@@ -84,7 +73,7 @@ const PROJECTS = [
     id: "07",
     title: "Digital Genesis",
     category: "CGI Production",
-    image: "media/1784608059845_d4aoi.avif",
+    image: "/assets/images/pic8_converted.avif",
     description: "A generative exploration of abstract digital terrains and simulated ecosystems.",
     hoverText: [
       { text: "Digital ", className: "text-[#faebac]" },
@@ -95,7 +84,7 @@ const PROJECTS = [
     id: "08",
     title: "Echo Chamber",
     category: "Experiential",
-    image: "media/1784608070043_uxx8wm.avif",
+    image: "/assets/images/pic9_converted.avif",
     description: "An interactive sound installation reflecting the complexities of modern communication.",
     hoverText: [
       { text: "Echo Chamber", className: "text-[#faebac]" }
@@ -105,7 +94,7 @@ const PROJECTS = [
     id: "09",
     title: "Neon Pulse",
     category: "Campaign",
-    image: "media/1784608092419_48zjlg.avif",
+    image: "/assets/images/pic10_converted.avif",
     description: "Vibrant visual aesthetics capturing the energy of late-night urban landscapes.",
     hoverText: [
       { text: "Neon", className: "text-[#ff5555]" },
@@ -116,7 +105,7 @@ const PROJECTS = [
     id: "10",
     title: "Quiet Form",
     category: "Brand Design",
-    image: "media/1784608103375_r4ams.avif",
+    image: "/assets/images/pic11_converted.avif",
     description: "Minimalist brand identity focused on negative space and typographic clarity.",
     hoverText: [
       { text: "Quiet", className: "text-[#faebac]" },
@@ -127,7 +116,7 @@ const PROJECTS = [
     id: "11",
     title: "Deep Current",
     category: "Film",
-    image: "media/1784608116679_9458i.avif",
+    image: "/assets/images/pic12_converted.avif",
     description: "A short film navigating the subconscious through fluid dynamics and underwater cinematography.",
     hoverText: [
       { text: "Deep Current", className: "text-[#00a3ff]" }
@@ -137,7 +126,7 @@ const PROJECTS = [
     id: "12",
     title: "Prism Void",
     category: "CGI Production",
-    image: "media/1784608137773_9ys66p.avif",
+    image: "/assets/images/pic14_converted.avif",
     description: "Volumetric light simulations refracting through impossible geometric objects.",
     hoverText: [
       { text: "Prism ", className: "text-white" },
@@ -148,7 +137,7 @@ const PROJECTS = [
     id: "13",
     title: "Fluid Motion",
     category: "Film",
-    image: "media/1784608190932_7rsoox.avif",
+    image: "/assets/images/pic15_converted.avif",
     description: "A study of liquid physics, momentum, and abstract kinetic motion.",
     hoverText: [
       { text: "Fluid ", className: "text-[#faebac]" },
@@ -159,7 +148,7 @@ const PROJECTS = [
     id: "14",
     title: "Kinetic Form",
     category: "Experiential",
-    image: "media/1784608201460_on4kmk.avif",
+    image: "/assets/images/pic16_converted.avif",
     description: "An installation translating mechanical motion into tactile, sculptural presence.",
     hoverText: [
       { text: "Kinetic ", className: "text-[#00a3ff]" },
@@ -170,7 +159,7 @@ const PROJECTS = [
     id: "15",
     title: "Light Wave",
     category: "CGI Production",
-    image: "media/1784608344563_ju2zpg.jpeg",
+    image: "/assets/images/pic17_converted.avif",
     description: "Raymarching visual study of glowing dynamic waves and particles.",
     hoverText: [
       { text: "Light ", className: "text-white" },
@@ -181,7 +170,7 @@ const PROJECTS = [
     id: "16",
     title: "Monochrome Study",
     category: "Brand Design",
-    image: "media/1784608353063_n9xtko.jpeg",
+    image: "/assets/images/image_converted.avif",
     description: "Design experiment focusing purely on contrast, texture, and structural layouts.",
     hoverText: [
       { text: "Mono", className: "text-[#ff5555]" },
@@ -192,7 +181,7 @@ const PROJECTS = [
     id: "17",
     title: "Future Shift",
     category: "Campaign",
-    image: "media/1784608379377_heyq43.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.16_converted.avif",
     description: "Bold marketing assets capturing the transition to next-generation interfaces.",
     hoverText: [
       { text: "Future ", className: "text-white" },
@@ -203,7 +192,7 @@ const PROJECTS = [
     id: "18",
     title: "Hidden Layer",
     category: "CGI Production",
-    image: "media/1784608393114_5szzgo9.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.16 (1)_converted.avif",
     description: "Visualizing the unseen computational layers of neural networks and machine intelligence.",
     hoverText: [
       { text: "Hidden ", className: "text-[#faebac]" },
@@ -214,7 +203,7 @@ const PROJECTS = [
     id: "19",
     title: "Tactile Space",
     category: "Experiential",
-    image: "media/1784608404556_uf04g.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.17_converted.avif",
     description: "Physical spaces designed to react dynamically to touch, pressure, and proximity.",
     hoverText: [
       { text: "Tactile ", className: "text-white" },
@@ -225,7 +214,7 @@ const PROJECTS = [
     id: "20",
     title: "Quantum Shift",
     category: "CGI Production",
-    image: "media/1784608423169_6kz4sp.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.17 (1)_converted.avif",
     description: "Simulating subatomic particle behaviors and light refraction fields.",
     hoverText: [
       { text: "Quantum ", className: "text-[#00a3ff]" },
@@ -236,7 +225,7 @@ const PROJECTS = [
     id: "21",
     title: "Spectral Glow",
     category: "Campaign",
-    image: "media/1784608439157_w2n5xp.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.18_converted.avif",
     description: "Prismatic color gradients designed to stand out in digital environments.",
     hoverText: [
       { text: "Spectral ", className: "text-white" },
@@ -247,7 +236,7 @@ const PROJECTS = [
     id: "22",
     title: "Visual Rhythm",
     category: "Film",
-    image: "media/1784608451276_zelm0o.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.18 (1)_converted.avif",
     description: "Syncing rhythmic musical beats with custom procedural visuals.",
     hoverText: [
       { text: "Visual ", className: "text-[#faebac]" },
@@ -258,7 +247,7 @@ const PROJECTS = [
     id: "23",
     title: "Silent Echo",
     category: "Experiential",
-    image: "media/1784608466861_f0swwg.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.18 (2)_converted.avif",
     description: "An installation designed around the resonance and echo of quiet places.",
     hoverText: [
       { text: "Silent ", className: "text-white" },
@@ -269,7 +258,7 @@ const PROJECTS = [
     id: "24",
     title: "Static Frame",
     category: "Brand Design",
-    image: "media/1784608482029_0qqva.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.19_converted.avif",
     description: "Clean typographical and layout designs exploring grid-based minimalism.",
     hoverText: [
       { text: "Static ", className: "text-[#faebac]" },
@@ -280,22 +269,44 @@ const PROJECTS = [
     id: "25",
     title: "Infinite Loop",
     category: "CGI Production",
-    image: "media/1784608496581_i2bieq.avif",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 09.04.19 (1)_converted.avif",
     description: "Seamlessly looping 3D renders exploring perpetual motions.",
     hoverText: [
       { text: "Infinite ", className: "text-white" },
       { text: "Loop", className: "text-[#00a3ff]" }
     ],
   },
+  {
+    id: "26",
+    title: "Neural Resonance",
+    category: "Experiential",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 10.01.12.jpeg",
+    description: "Interactive lighting setups synchronized with real-time neural data.",
+    hoverText: [
+      { text: "Neural ", className: "text-white" },
+      { text: "Resonance", className: "text-[#faebac]" }
+    ],
+  },
+  {
+    id: "27",
+    title: "Chroma Field",
+    category: "CGI Production",
+    image: "/assets/images/WhatsApp Image 2026-07-21 at 10.01.12 copy.jpeg",
+    description: "Prismatic shader fields shifting based on camera proximity.",
+    hoverText: [
+      { text: "Chroma ", className: "text-[#00a3ff]" },
+      { text: "Field", className: "text-[#faebac]" }
+    ],
+  },
 ];
 
 const FILTERS = [
-  ["All projects", "25"],
-  ["CGI Production", "8"],
+  ["All projects", "27"],
+  ["CGI Production", "9"],
   ["Brand Design", "4"],
   ["Film", "4"],
   ["Campaign", "4"],
-  ["Experiential", "5"],
+  ["Experiential", "6"],
 ];
 
 const NEUTRAL =
@@ -406,7 +417,7 @@ export default function Home() {
                 onMouseLeave={() => setHoveredProject(null)}
               >
                 <WaterRippleImage
-                  imageUrl={getImageUrl(project.image)}
+                  imageUrl={project.image}
                   isActive={hoveredProject?.id === project.id}
                   priority={index < 2}
                 />
