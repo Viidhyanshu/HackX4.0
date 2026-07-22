@@ -3,60 +3,8 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import NetflixCurtainBackground from "@/components/NetflixCurtainBackground/NetflixCurtainBackground";
-import { TeamCard, TeamMember } from "./TeamCard";
-
-const TEAM_MEMBERS: TeamMember[] = [
-  {
-    name: "Vidhyanshu Kumar",
-    role: "Web Developer",
-    initials: "VK",
-    image: "/assets/team/vidhyanshu.jpg",
-    socials: {
-      linkedin: "https://linkedin.com",
-      github: "https://github.com",
-    },
-  },
-  {
-    name: "Aryan Verma",
-    role: "Student Convener",
-    initials: "AV",
-    image: "/assets/team/aryan.jpg",
-    socials: {
-      linkedin: "#",
-      github: "#",
-    },
-  },
-  {
-    name: "Samaksh Gupta",
-    role: "Student Convener",
-    initials: "SG",
-    image: "/assets/team/samaksh.jpg",
-    socials: {
-      linkedin: "#",
-      github: "#",
-    },
-  },
-  {
-    name: "Tamanna Yadav",
-    role: "Student Convener",
-    initials: "TY",
-    image: "/assets/team/tamanna.jpg",
-    socials: {
-      linkedin: "#",
-      github: "#",
-    },
-  },
-  {
-    name: "Harshada Chandel",
-    role: "Student Convener",
-    initials: "HC",
-    image: "/assets/team/harshada.jpg",
-    socials: {
-      linkedin: "#",
-      github: "#",
-    },
-  },
-];
+import { TeamCard } from "./TeamCard";
+import { TEAM_MEMBERS } from "@/data/team";
 
 export default function Team() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -79,20 +27,18 @@ export default function Team() {
   const labelY = useTransform(scrollYProgress, [0.40, 0.54], [40, 0]);
 
   // Hook transforms for team members
-  const cardOpacity0 = useTransform(scrollYProgress, [0.42, 0.55], [0, 1]);
-  const cardOpacity1 = useTransform(scrollYProgress, [0.45, 0.58], [0, 1]);
-  const cardOpacity2 = useTransform(scrollYProgress, [0.48, 0.61], [0, 1]);
-  const cardOpacity3 = useTransform(scrollYProgress, [0.51, 0.64], [0, 1]);
-  const cardOpacity4 = useTransform(scrollYProgress, [0.54, 0.67], [0, 1]);
+  const cardOpacity0 = useTransform(scrollYProgress, [0.43, 0.57], [0, 1]);
+  const cardOpacity1 = useTransform(scrollYProgress, [0.46, 0.60], [0, 1]);
+  const cardOpacity2 = useTransform(scrollYProgress, [0.49, 0.63], [0, 1]);
+  const cardOpacity3 = useTransform(scrollYProgress, [0.52, 0.66], [0, 1]);
 
-  const cardY0 = useTransform(scrollYProgress, [0.42, 0.55], [60, 0]);
-  const cardY1 = useTransform(scrollYProgress, [0.45, 0.58], [60, 0]);
-  const cardY2 = useTransform(scrollYProgress, [0.48, 0.61], [60, 0]);
-  const cardY3 = useTransform(scrollYProgress, [0.51, 0.64], [60, 0]);
-  const cardY4 = useTransform(scrollYProgress, [0.54, 0.67], [60, 0]);
+  const cardY0 = useTransform(scrollYProgress, [0.43, 0.57], [60, 0]);
+  const cardY1 = useTransform(scrollYProgress, [0.46, 0.60], [60, 0]);
+  const cardY2 = useTransform(scrollYProgress, [0.49, 0.63], [60, 0]);
+  const cardY3 = useTransform(scrollYProgress, [0.52, 0.66], [60, 0]);
 
-  const cardOpacities = [cardOpacity0, cardOpacity1, cardOpacity2, cardOpacity3, cardOpacity4];
-  const cardYs = [cardY0, cardY1, cardY2, cardY3, cardY4];
+  const cardOpacities = [cardOpacity0, cardOpacity1, cardOpacity2, cardOpacity3];
+  const cardYs = [cardY0, cardY1, cardY2, cardY3];
 
   /* ── Entry animations ── */
   const titleContainerVariants = {
@@ -176,20 +122,20 @@ export default function Team() {
         </motion.div>
 
         <div className="absolute inset-0 flex items-center justify-center z-20 px-6 md:px-12 bg-transparent overflow-y-auto py-12">
-          <div className="w-full max-w-6xl my-auto">
+          <div className="w-full max-w-5xl my-auto">
             {/* Section label */}
             <motion.p
-              className="text-center text-[#FAF8F5]/50 text-sm md:text-base tracking-[0.3em] uppercase font-sans font-medium mb-8 md:mb-10"
+              className="text-center text-[#FAF8F5]/50 text-sm md:text-base tracking-[0.3em] uppercase font-sans font-medium mb-6 md:mb-8"
               style={{ opacity: labelOpacity, y: labelY }}
             >
               The Team
             </motion.p>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {TEAM_MEMBERS.map((member, i) => (
                 <motion.div
-                  key={member.name}
+                  key={member.id || member.name}
                   style={{
                     opacity: cardOpacities[i] || 1,
                     y: cardYs[i] || 0,
