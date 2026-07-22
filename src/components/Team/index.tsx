@@ -18,6 +18,9 @@ export default function Team() {
     offset: ["start start", "end start"],
   });
 
+  // Hero curtain canvas opacity: visible → smoothly fades out
+  const curtainOpacity = useTransform(scrollYProgress, [0.3, 0.7], [1, 0]);
+
   // Scale: 1 → 45
   const heroScale = useTransform(scrollYProgress, [0, 0.7], [1, 45]);
   // Opacity: visible → gone
@@ -77,19 +80,28 @@ export default function Team() {
   }, [currentMembers]);
 
   return (
-    <div className="relative min-h-screen">
-      {/* Hero Zoom Container */}
-      <div ref={containerRef} className="relative h-[250vh]">
-        <div className="sticky top-0 w-full h-screen overflow-hidden bg-transparent z-10 pointer-events-none">
-          <NetflixCurtainBackground scrollYProgress={scrollYProgress} />
+    <div className="relative min-h-screen text-white bg-[#070312]">
+      {/* 1. Single Fixed Page-Wide Seamless Background Glow */}
+      <div className="fixed inset-0 bg-[#070312] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1d0a3d] via-[#070312] to-[#030108] pointer-events-none z-0" />
 
+      {/* 2. Fixed WebGL Curtain Layer with Smooth Opacity Fade */}
+      <motion.div
+        style={{ opacity: curtainOpacity }}
+        className="fixed inset-0 pointer-events-none z-10"
+      >
+        <NetflixCurtainBackground scrollYProgress={scrollYProgress} />
+      </motion.div>
+
+      {/* 3. Hero Zoom Text Section */}
+      <div ref={containerRef} className="relative h-[220vh] z-20">
+        <div className="sticky top-0 w-full h-screen flex items-center justify-center pointer-events-none">
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-12 select-none z-10"
+            className="flex flex-col items-center justify-center text-center px-6 md:px-12 select-none"
             style={{
               scale: heroScale,
               opacity: heroOpacity,
               filter: heroBlur,
-              transformOrigin: "54% 61%",
+              transformOrigin: "57.5% 75%",
             }}
           >
             <div className="relative flex flex-col items-center justify-center max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw]">
@@ -135,8 +147,8 @@ export default function Team() {
         </div>
       </div>
 
-      {/* Main Team Content */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 -mt-[80vh] pb-32">
+      {/* 4. Main Team Grid Section (Natural Document Flow) */}
+      <div className="relative z-30 w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 -mt-[60vh] pb-32">
         {/* Filter Controls (Fixed above cards) */}
         <div className="flex flex-col items-center gap-4 mb-12 pb-4">
           {/* Year Selector (2026, 2025, 2024) */}
