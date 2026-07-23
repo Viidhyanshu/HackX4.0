@@ -46,7 +46,7 @@ export default function RootLayout({
         <LenisProvider>
           <FluidShaderBackground />
           <Navbar />
-          <main className="flex-grow z-10 relative">
+          <main className="flex-grow relative z-0">
             {children}
           </main>
           <Footer />

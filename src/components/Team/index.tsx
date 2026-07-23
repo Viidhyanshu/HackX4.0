@@ -1,110 +1,32 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import NetflixCurtainBackground from "@/components/NetflixCurtainBackground/NetflixCurtainBackground";
-
-const InstagramIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="5" />
-    <circle cx="12" cy="12" r="5" />
-    <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
-  </svg>
-);
-
-const LinkedInIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect x="2" y="9" width="4" height="12" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
-
-const PhoneIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-  </svg>
-);
-
-const TEAM_MEMBERS = [
-  {
-    name: "Aryan Verma",
-    role: "Student Convener",
-    initials: "AV",
-    image: "/assets/team/aryan.jpg",
-    socials: {
-      instagram: "#",
-      linkedin: "#",
-      phone: "tel:+918287044755",
-    },
-  },
-  {
-    name: "Samaksh Gupta",
-    role: "Student Convener",
-    initials: "SG",
-    image: "/assets/team/samaksh.jpg",
-    socials: {
-      instagram: "#",
-      linkedin: "#",
-      phone: "tel:+919871340076",
-    },
-  },
-  {
-    name: "Tamanna Yadav",
-    role: "Student Convener",
-    initials: "TY",
-    image: "/assets/team/tamanna.jpg",
-    socials: {
-      linkedin: "#",
-      phone: "tel:+918860514740",
-    },
-  },
-  {
-    name: "Harshada Chandel",
-    role: "Student Convener",
-    initials: "HC",
-    image: "/assets/team/harshada.jpg",
-    socials: {
-      linkedin: "#",
-      phone: "tel:+919821970872",
-    },
-  },
-];
+import { TeamCard } from "./TeamCard";
+import { TEAM_MEMBERS, TeamYear, TeamCategory, TeamMember } from "@/data/team";
 
 export default function Team() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /* ── scroll progress through the tall container ── */
+  const [selectedYear, setSelectedYear] = useState<TeamYear>("2025");
+  const [selectedCategory, setSelectedCategory] = useState<TeamCategory>("EXECUTIVE");
+
+  /* ── scroll progress through the hero container ── */
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"],
+    offset: ["start start", "end start"],
   });
 
+  // Hero curtain canvas opacity: visible → smoothly fades out
+  const curtainOpacity = useTransform(scrollYProgress, [0.3, 0.7], [1, 0]);
+
   // Scale: 1 → 45
-  const heroScale = useTransform(scrollYProgress, [0, 0.6], [1, 45]);
-  // Opacity: visible → gone (overlapping with card entry)
-  const heroOpacity = useTransform(scrollYProgress, [0.3, 0.55], [1, 0]);
-  // Blur: 0px → 20px (diffuses the text as it zooms close)
-  const heroBlur = useTransform(scrollYProgress, [0.25, 0.55], ["blur(0px)", "blur(20px)"]);
-  // Curtains fade out
-  const curtainOpacity = useTransform(scrollYProgress, [0, 0.35], [0.85, 0]);
-
-  /* ── Staggered Team grid transforms ── */
-  const labelOpacity = useTransform(scrollYProgress, [0.40, 0.54], [0, 1]);
-  const labelY = useTransform(scrollYProgress, [0.40, 0.54], [40, 0]);
-
-  const cardOpacity0 = useTransform(scrollYProgress, [0.43, 0.57], [0, 1]);
-  const cardOpacity1 = useTransform(scrollYProgress, [0.46, 0.60], [0, 1]);
-  const cardOpacity2 = useTransform(scrollYProgress, [0.49, 0.63], [0, 1]);
-  const cardOpacity3 = useTransform(scrollYProgress, [0.52, 0.66], [0, 1]);
-
-  const cardY0 = useTransform(scrollYProgress, [0.43, 0.57], [60, 0]);
-  const cardY1 = useTransform(scrollYProgress, [0.46, 0.60], [60, 0]);
-  const cardY2 = useTransform(scrollYProgress, [0.49, 0.63], [60, 0]);
-  const cardY3 = useTransform(scrollYProgress, [0.52, 0.66], [60, 0]);
-
-  const cardOpacities = [cardOpacity0, cardOpacity1, cardOpacity2, cardOpacity3];
-  const cardYs = [cardY0, cardY1, cardY2, cardY3];
+  const heroScale = useTransform(scrollYProgress, [0, 0.7], [1, 45]);
+  // Opacity: visible → gone
+  const heroOpacity = useTransform(scrollYProgress, [0.35, 0.7], [1, 0]);
+  // Blur: 0px → 20px
+  const heroBlur = useTransform(scrollYProgress, [0.3, 0.7], ["blur(0px)", "blur(20px)"]);
 
   /* ── Entry animations ── */
   const titleContainerVariants = {
@@ -132,149 +54,188 @@ export default function Team() {
     },
   };
 
+  const currentMembers = useMemo(() => {
+    return TEAM_MEMBERS.filter(
+      (m) => m.year === selectedYear && m.category === selectedCategory
+    );
+  }, [selectedYear, selectedCategory]);
+
+  const subTeamGroups = useMemo(() => {
+    const groups: { title: string; members: TeamMember[] }[] = [];
+    const map = new Map<string, TeamMember[]>();
+
+    currentMembers.forEach((m) => {
+      const key = m.subTeam || "MEMBERS";
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(m);
+    });
+
+    map.forEach((members, title) => {
+      groups.push({ title, members });
+    });
+
+    return groups;
+  }, [currentMembers]);
+
   return (
-    /* The tall scroll container – 700vh gives enough room for
-       the zoom-in + team reveal + breathing space */
-    <div ref={containerRef} className="relative" style={{ height: "700vh" }}>
+    <div className="relative min-h-screen text-white bg-[#070312]">
+      {/* 1. Single Fixed Page-Wide Seamless Background Glow */}
+      <div className="fixed inset-0 bg-[#070312] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1d0a3d] via-[#070312] to-[#030108] pointer-events-none z-0" />
 
-      <div className="sticky top-0 w-full h-screen overflow-hidden bg-transparent">
+      {/* 2. Fixed WebGL Curtain Layer with Smooth Opacity Fade */}
+      <motion.div
+        style={{ opacity: curtainOpacity }}
+        className="fixed inset-0 pointer-events-none z-10"
+      >
         <NetflixCurtainBackground scrollYProgress={scrollYProgress} />
+      </motion.div>
 
-        <motion.div
-          className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-12 select-none z-10"
-          style={{
-            scale: heroScale,
-            opacity: heroOpacity,
-            filter: heroBlur,
-            transformOrigin: "54% 61%",
-          }}
-        >
-          <div className="relative flex flex-col items-center justify-center max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw]">
-            {/* Subtitle */}
-            <motion.div
-              variants={textVariants}
-              initial="hidden"
-              animate="visible"
-              className="mb-6 md:mb-8 pointer-events-auto"
-            >
-              <span className="text-[#FAF8F5]/60 text-2xl md:text-3xl lg:text-4xl font-serif italic tracking-wide">
-                Meet The Humans Behind The Curtains
-              </span>
-            </motion.div>
+      {/* 3. Hero Zoom Text Section */}
+      <div ref={containerRef} className="relative h-[220vh] z-20">
+        <div className="sticky top-0 w-full h-screen flex items-center justify-center pointer-events-none">
+          <motion.div
+            className="flex flex-col items-center justify-center text-center px-6 md:px-12 select-none"
+            style={{
+              scale: heroScale,
+              opacity: heroOpacity,
+              filter: heroBlur,
+              transformOrigin: "57.5% 75%",
+            }}
+          >
+            <div className="relative flex flex-col items-center justify-center max-w-[95vw] md:max-w-[85vw] lg:max-w-[75vw]">
+              {/* Subtitle */}
+              <motion.div
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="mb-6 md:mb-8 pointer-events-auto"
+              >
+                <span className="text-[#FAF8F5]/60 text-2xl md:text-3xl lg:text-4xl font-serif italic tracking-wide">
+                  Meet The Humans Behind The Curtains
+                </span>
+              </motion.div>
 
-            {/* Main heading */}
-            <motion.h1
-              variants={titleContainerVariants}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-col items-center justify-center font-sans font-black uppercase tracking-normal leading-[0.98] text-center"
-              style={{ fontSize: "clamp(2.5rem, 8.5vw, 8.8rem)" }}
-            >
-              <div className="overflow-hidden py-1 md:py-2">
-                <motion.span
-                  variants={lineVariants}
-                  className="block origin-bottom font-extrabold text-[#FAF8F5]"
-                >
-                  TEAM MUJ
-                </motion.span>
-              </div>
-              <div className="overflow-hidden py-1 md:py-2">
-                <motion.span
-                  variants={lineVariants}
-                  className="block origin-bottom text-[#FAF8F5] font-extrabold"
-                >
-                  HACKX 4.0
-                </motion.span>
-              </div>
-            </motion.h1>
-          </div>
-        </motion.div>
-
-        <div className="absolute inset-0 flex items-center justify-center z-20 px-6 md:px-12 bg-transparent">
-          <div className="w-full max-w-6xl">
-            {/* Section label */}
-            <motion.p
-              className="text-center text-[#FAF8F5]/50 text-sm md:text-base tracking-[0.3em] uppercase font-sans font-medium mb-10 md:mb-14"
-              style={{ opacity: labelOpacity, y: labelY }}
-            >
-              The Team
-            </motion.p>
-
-            {/* Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-              {TEAM_MEMBERS.map((member, i) => (
-                <motion.div
-                  key={member.name}
-                  className="group relative flex flex-col rounded-2xl border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm transition-all duration-500 hover:border-white/[0.15] hover:bg-white/[0.07] overflow-hidden"
-                  style={{
-                    opacity: cardOpacities[i] || 1,
-                    y: cardYs[i] || 0
-                  }}
-                >
-                  {/* Photo area */}
-                  <div className="relative w-full aspect-[3/4] overflow-hidden m-3 md:m-4 rounded-xl" style={{ width: 'calc(100% - 1.5rem)', marginLeft: '0.75rem' }}>
-                    {/* Gradient background with initials (fallback / avatar) */}
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(145deg, #7801FF ${10 + i * 8}%, #D242D7 ${45 + i * 5}%, #B86EF9 ${75 + i * 3}%, #E1E1F5 100%)`,
-                      }}
-                    >
-                      <span className="text-white/80 font-bold text-4xl md:text-5xl tracking-wider select-none">
-                        {member.initials}
-                      </span>
-                    </div>
-                    {/* Subtle top shine */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/20 pointer-events-none" />
-                  </div>
-
-                  {/* Info area */}
-                  <div className="flex flex-col items-center text-center px-3 md:px-4 pt-3 pb-2">
-                    <h3 className="text-[#FAF8F5] text-sm md:text-base font-semibold tracking-wide mb-1 transition-colors duration-300 group-hover:text-white">
-                      {member.name}
-                    </h3>
-                    <p className="text-[#FAF8F5]/40 text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase mb-4">
-                      {member.role}
-                    </p>
-
-                    {/* Social icons row */}
-                    <div className="flex items-center gap-2 mb-3">
-                      {member.socials.instagram && (
-                        <a
-                          href={member.socials.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/[0.12] flex items-center justify-center text-[#FAF8F5]/40 transition-all duration-300 hover:border-[#D242D7]/50 hover:text-[#D242D7] hover:bg-white/[0.05]"
-                        >
-                          <InstagramIcon />
-                        </a>
-                      )}
-                      {member.socials.linkedin && (
-                        <a
-                          href={member.socials.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/[0.12] flex items-center justify-center text-[#FAF8F5]/40 transition-all duration-300 hover:border-[#7801FF]/50 hover:text-[#7801FF] hover:bg-white/[0.05]"
-                        >
-                          <LinkedInIcon />
-                        </a>
-                      )}
-                      {member.socials.phone && (
-                        <a
-                          href={member.socials.phone}
-                          className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/[0.12] flex items-center justify-center text-[#FAF8F5]/40 transition-all duration-300 hover:border-[#B86EF9]/50 hover:text-[#B86EF9] hover:bg-white/[0.05]"
-                        >
-                          <PhoneIcon />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+              {/* Main heading */}
+              <motion.h1
+                variants={titleContainerVariants}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col items-center justify-center font-sans font-black uppercase tracking-normal leading-[0.98] text-center"
+                style={{ fontSize: "clamp(2.5rem, 8.5vw, 8.8rem)" }}
+              >
+                <div className="overflow-hidden py-1 md:py-2">
+                  <motion.span
+                    variants={lineVariants}
+                    className="block origin-bottom font-extrabold text-[#FAF8F5]"
+                  >
+                    TEAM MUJ
+                  </motion.span>
+                </div>
+                <div className="overflow-hidden py-1 md:py-2">
+                  <motion.span
+                    variants={lineVariants}
+                    className="block origin-bottom text-[#FAF8F5] font-extrabold"
+                  >
+                    HACKX 4.0
+                  </motion.span>
+                </div>
+              </motion.h1>
             </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* 4. Main Team Grid Section (Natural Document Flow) */}
+      <div className="relative z-30 w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 -mt-[60vh] pb-32">
+        {/* Filter Controls (Fixed above cards) */}
+        <div className="flex flex-col items-center gap-4 mb-12 pb-4">
+          {/* Year Selector (2026, 2025, 2024) */}
+          <div className="flex items-center justify-center gap-6 sm:gap-10">
+            {(["2026", "2025", "2024"] as const).map((year) => (
+              <button
+                key={year}
+                onClick={() => {
+                  setSelectedYear(year);
+                  if (year === "2024" && selectedCategory === "CORE") {
+                    setSelectedCategory("EXECUTIVE");
+                  }
+                }}
+                className={`text-xl sm:text-3xl font-black tracking-widest uppercase transition-all duration-300 relative px-2 py-1 ${
+                  selectedYear === year
+                    ? "text-white scale-110"
+                    : "text-white/35 hover:text-white/70"
+                }`}
+              >
+                {year}
+                {selectedYear === year && (
+                  <motion.div
+                    layoutId="activeYearUnderline"
+                    className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-white rounded-full"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Sub-Category Filter (FACULTY EXECUTIVE CORE) */}
+          <div className="flex items-center justify-center gap-6 sm:gap-10 pt-2">
+            {(selectedYear === "2024"
+              ? (["FACULTY", "EXECUTIVE"] as TeamCategory[])
+              : (["FACULTY", "EXECUTIVE", "CORE"] as TeamCategory[])
+            ).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`text-sm sm:text-base md:text-lg font-black tracking-widest uppercase transition-all duration-300 relative px-2 py-1 ${
+                  selectedCategory === cat
+                    ? "text-white scale-105"
+                    : "text-white/35 hover:text-white/70"
+                }`}
+              >
+                {cat}
+                {selectedCategory === cat && (
+                  <motion.div
+                    layoutId="activeCategoryUnderline"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"
+                  />
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* Team Grid Grouped by Subheadings */}
+        {subTeamGroups.length > 0 ? (
+          <div className="space-y-20 md:space-y-24 lg:space-y-28">
+            {subTeamGroups.map((group) => (
+              <div key={group.title} className="flex flex-col gap-6">
+                {group.title !== "MEMBERS" && (
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-center text-white/90 tracking-wide mb-4 md:mb-6 pt-2">
+                    {group.title}
+                  </h2>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  {group.members.map((member, i) => (
+                    <motion.div
+                      key={member.id || member.name}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.6) }}
+                    >
+                      <TeamCard member={member} index={i} />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 text-white/40 text-sm font-medium tracking-wider">
+            No team members listed for {selectedCategory} in {selectedYear}.
+          </div>
+        )}
       </div>
     </div>
   );

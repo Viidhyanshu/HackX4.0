@@ -177,9 +177,6 @@ export default function NetflixCurtainBackground({ scrollYProgress }: NetflixCur
     if (glRef.current && openLocRef.current) {
       glRef.current.uniform1f(openLocRef.current, progress);
     }
-    if (containerRef.current) {
-      containerRef.current.style.display = progress >= 0.95 ? "none" : "block";
-    }
   });
 
   useEffect(() => {
@@ -308,13 +305,7 @@ export default function NetflixCurtainBackground({ scrollYProgress }: NetflixCur
         pointerEvents: "none",
       }}
     >
-      {/* 1. Deep premium backdrop for when curtains open */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-[#090416] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#280c52] via-[#090416] to-[#04020a]"
-        style={{ zIndex: -2 }}
-      />
-
-      {/* 2. WebGL Canvas containing curtains */}
+      {/* WebGL Canvas containing curtains */}
       <canvas
         ref={canvasRef}
         className="pointer-events-none absolute inset-0 w-full h-full"
