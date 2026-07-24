@@ -191,6 +191,8 @@ export default function FluidShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const logoContainerRef = useRef<HTMLDivElement>(null);
+  const blurOverlayRef = useRef<HTMLDivElement>(null);
+  const grainOverlayRef = useRef<SVGSVGElement>(null);
   const shaderParams = useRef({ zoom: 1.25, colorTransition: 0.0 });
 
   useEffect(() => {
@@ -445,7 +447,12 @@ export default function FluidShaderBackground() {
       document.documentElement.style.setProperty("--bg-gradient-to", "#04020a");
 
       const logoContainer = logoContainerRef.current;
+      const blurOverlay = blurOverlayRef.current;
+      const grainOverlay = grainOverlayRef.current;
+      const canvas = canvasRef.current;
+
       if (logoContainer) {
+        gsap.set(logoContainer, { scale: 1.0, filter: "blur(0px)" });
         logoContainer.style.setProperty("--x-color-stop-0", "#5200c7");
         logoContainer.style.setProperty("--x-color-stop-33", "#ae73f2");
         logoContainer.style.setProperty("--x-color-stop-66", "#7801ff");
@@ -454,7 +461,17 @@ export default function FluidShaderBackground() {
         logoContainer.style.setProperty("--x-shadow-2", "rgba(82, 0, 199, 0.70)");
       }
 
-      // Animatable objects to handle precise color and degree interpolation natively in GSAP
+      if (blurOverlay) {
+        gsap.set(blurOverlay, { backdropFilter: "blur(10px) saturate(1.3) contrast(1.02)", WebkitBackdropFilter: "blur(10px) saturate(1.3) contrast(1.02)" });
+      }
+      if (grainOverlay) {
+        gsap.set(grainOverlay, { opacity: 0.09 });
+      }
+      if (canvas) {
+        gsap.set(canvas, { opacity: 0.45 });
+      }
+
+      // Animatable objects to handle precise color, degree, blur, and grain interpolation natively in GSAP
       const bgColors = {
         from: "#1f093f",
         via: "#090416",
@@ -471,6 +488,7 @@ export default function FluidShaderBackground() {
       };
 
       const logoHue = { rotate: 0 };
+      const blurParams = { blur: 10, sat: 1.3 };
 
       tl = gsap.timeline({
         scrollTrigger: {
@@ -485,7 +503,7 @@ export default function FluidShaderBackground() {
 
       // Transition IN (0.0 to 1.0)
       tl.to(shaderParams.current, {
-        zoom: 0.85,
+        zoom: 0.65, // 0.75 of previous zoom delta (1/4th lesser zoom)
         colorTransition: 1.0,
         duration: 1,
         ease: "power1.out"
@@ -513,6 +531,35 @@ export default function FluidShaderBackground() {
         }
       }, 0);
 
+      if (blurOverlay) {
+        tl.to(blurParams, {
+          blur: 28,
+          sat: 1.6,
+          duration: 1,
+          ease: "power1.out",
+          onUpdate: () => {
+            blurOverlay.style.backdropFilter = `blur(${blurParams.blur}px) saturate(${blurParams.sat}) contrast(1.02)`;
+            blurOverlay.style.webkitBackdropFilter = `blur(${blurParams.blur}px) saturate(${blurParams.sat}) contrast(1.02)`;
+          }
+        }, 0);
+      }
+
+      if (grainOverlay) {
+        tl.to(grainOverlay, {
+          opacity: 0.18,
+          duration: 1,
+          ease: "power1.out"
+        }, 0);
+      }
+
+      if (canvas) {
+        tl.to(canvas, {
+          opacity: 0.70,
+          duration: 1,
+          ease: "power1.out"
+        }, 0);
+      }
+
       if (logoContainer) {
         tl.to(logoColors, {
           stop0: "#005035",
@@ -531,6 +578,13 @@ export default function FluidShaderBackground() {
             logoContainer.style.setProperty("--x-shadow-1", logoColors.shadow1);
             logoContainer.style.setProperty("--x-shadow-2", logoColors.shadow2);
           }
+        }, 0);
+
+        tl.to(logoContainer, {
+          scale: 1.9,
+          filter: "blur(1px)",
+          duration: 1,
+          ease: "power1.out"
         }, 0);
       }
 
@@ -564,6 +618,35 @@ export default function FluidShaderBackground() {
         }
       }, 4.6);
 
+      if (blurOverlay) {
+        tl.to(blurParams, {
+          blur: 10,
+          sat: 1.3,
+          duration: 1,
+          ease: "power1.in",
+          onUpdate: () => {
+            blurOverlay.style.backdropFilter = `blur(${blurParams.blur}px) saturate(${blurParams.sat}) contrast(1.02)`;
+            blurOverlay.style.webkitBackdropFilter = `blur(${blurParams.blur}px) saturate(${blurParams.sat}) contrast(1.02)`;
+          }
+        }, 4.6);
+      }
+
+      if (grainOverlay) {
+        tl.to(grainOverlay, {
+          opacity: 0.09,
+          duration: 1,
+          ease: "power1.in"
+        }, 4.6);
+      }
+
+      if (canvas) {
+        tl.to(canvas, {
+          opacity: 0.45,
+          duration: 1,
+          ease: "power1.in"
+        }, 4.6);
+      }
+
       if (logoContainer) {
         tl.to(logoColors, {
           stop0: "#5200c7",
@@ -582,6 +665,13 @@ export default function FluidShaderBackground() {
             logoContainer.style.setProperty("--x-shadow-1", logoColors.shadow1);
             logoContainer.style.setProperty("--x-shadow-2", logoColors.shadow2);
           }
+        }, 4.6);
+
+        tl.to(logoContainer, {
+          scale: 1.0,
+          filter: "blur(0px)",
+          duration: 1,
+          ease: "power1.in"
         }, 4.6);
       }
     };
@@ -672,6 +762,7 @@ export default function FluidShaderBackground() {
       {/* 4. Vision Blur Overlay. This blurs both the SVG and the canvas together,
              making them dissolve into a single atmospheric entity. */}
       <div
+        ref={blurOverlayRef}
         className="pointer-events-none fixed inset-0"
         style={{
           zIndex: -5,
@@ -683,6 +774,7 @@ export default function FluidShaderBackground() {
       {/* 5. Monochrome Film Grain Overlay. Adds a highly premium, textured grain
              layer over the blurred backdrop. Optimized to 1 octave for rasterizer performance. */}
       <svg
+        ref={grainOverlayRef}
         className="pointer-events-none fixed inset-0 h-full w-full opacity-[0.09]"
         style={{ zIndex: -4 }}
       >
