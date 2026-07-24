@@ -51,7 +51,7 @@ export default function Timeline() {
   }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Track scroll progress manually to bypass hydration/ref lifecycle issues
   const scrollYProgress = useMotionValue(0);
 
@@ -69,12 +69,12 @@ export default function Timeline() {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      
+
       // Calculate scroll progress from start center to end center
       const startPos = viewportHeight / 2;
       const currentPos = startPos - rect.top;
       const totalDist = rect.height;
-      
+
       const progress = Math.max(0, Math.min(1, currentPos / totalDist));
       scrollYProgress.set(progress);
     };
@@ -217,97 +217,98 @@ export default function Timeline() {
 
 
   return (
-    <section 
-      ref={containerRef} 
+    <section
+      id="timeline-section"
+      ref={containerRef}
       className="relative w-full h-[5500px] bg-transparent text-white select-none overflow-visible pt-24 pb-48 mb-[300px]"
     >
       <div className="absolute inset-y-0 left-6 md:left-1/2 -translate-x-0 md:-translate-x-1/2 w-[80px] md:w-[1000px] pointer-events-none z-10 overflow-visible">
         {mounted && (
-        <svg 
-          viewBox="0 0 1000 5500" 
-          className="w-full h-full overflow-visible"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            {/* Gradient for the animated timeline line */}
-            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="35%" stopColor="#C076EC" />
-              <stop offset="70%" stopColor="#572CE6" />
-              <stop offset="100%" stopColor="#ffffff" />
-            </linearGradient>
+          <svg
+            viewBox="0 0 1000 5500"
+            className="w-full h-full overflow-visible"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              {/* Gradient for the animated timeline line */}
+              <linearGradient id="line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="35%" stopColor="#C076EC" />
+                <stop offset="70%" stopColor="#572CE6" />
+                <stop offset="100%" stopColor="#ffffff" />
+              </linearGradient>
 
-            {/* Glowing filter for the active point */}
-            <filter id="active-glow" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="15" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
+              {/* Glowing filter for the active point */}
+              <filter id="active-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="15" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
 
-          {/* Background thin trace line */}
-          <path
-            d={fullPathD}
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.08)"
-            strokeWidth="3"
-          />
+            {/* Background thin trace line */}
+            <path
+              d={fullPathD}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.08)"
+              strokeWidth="3"
+            />
 
-          {/* Animated active drawing line */}
-          <motion.path
-            d={fullPathD}
-            fill="none"
-            stroke="url(#line-gradient)"
-            strokeWidth="4.5"
-            style={{ pathLength: lineProgress }}
-          />
+            {/* Animated active drawing line */}
+            <motion.path
+              d={fullPathD}
+              fill="none"
+              stroke="url(#line-gradient)"
+              strokeWidth="4.5"
+              style={{ pathLength: lineProgress }}
+            />
 
-          {/* Milestone static indicators */}
-          {milestones.map((_, idx) => {
-            const yVal = (idx + 0.5) * 1000;
-            const xVal = 500 + 150 * Math.sin(yVal * (Math.PI / 1000) + Math.PI);
-            return (
-              <g key={idx}>
-                {/* Outermost ring */}
-                <circle
-                  cx={xVal}
-                  cy={yVal}
-                  r="14"
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.15)"
-                  strokeWidth="1"
-                />
-                {/* Inner dot */}
-                <circle
-                  cx={xVal}
-                  cy={yVal}
-                  r="5"
-                  fill="#ffffff"
-                  opacity="0.65"
-                />
-              </g>
-            );
-          })}
+            {/* Milestone static indicators */}
+            {milestones.map((_, idx) => {
+              const yVal = (idx + 0.5) * 1000;
+              const xVal = 500 + 150 * Math.sin(yVal * (Math.PI / 1000) + Math.PI);
+              return (
+                <g key={idx}>
+                  {/* Outermost ring */}
+                  <circle
+                    cx={xVal}
+                    cy={yVal}
+                    r="14"
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.15)"
+                    strokeWidth="1"
+                  />
+                  {/* Inner dot */}
+                  <circle
+                    cx={xVal}
+                    cy={yVal}
+                    r="5"
+                    fill="#ffffff"
+                    opacity="0.65"
+                  />
+                </g>
+              );
+            })}
 
-          {/* Moving Active Tracker Dot with direct SVG circle coordinate animation (avoids Safari CSS transform bugs on SVG groups) */}
-          <motion.circle
-            cx={xPosition}
-            cy={yPosition}
-            r="22"
-            fill="#ffffff"
-            opacity="0.25"
-          />
-          <motion.circle
-            cx={xPosition}
-            cy={yPosition}
-            r="9"
-            fill="#ffffff"
-          />
+            {/* Moving Active Tracker Dot with direct SVG circle coordinate animation (avoids Safari CSS transform bugs on SVG groups) */}
+            <motion.circle
+              cx={xPosition}
+              cy={yPosition}
+              r="22"
+              fill="#ffffff"
+              opacity="0.25"
+            />
+            <motion.circle
+              cx={xPosition}
+              cy={yPosition}
+              r="9"
+              fill="#ffffff"
+            />
 
-        </svg>
+          </svg>
         )}
       </div>
 
@@ -315,15 +316,21 @@ export default function Timeline() {
       <div className="relative w-full max-w-[1200px] mx-auto h-full px-6 md:px-12 pointer-events-none">
         {milestones.map((item, idx) => {
           const yVal = (idx + 0.5) * 1000;
-          const isLeft = idx % 2 !== 0; // Alternating cards left/right
-          
+          const isLeft = idx % 2 === 0; // Alternating cards left/right (on the outward side of curve)
+          const xVal = 500 + 150 * Math.sin(yVal * (Math.PI / 1000) + Math.PI);
+          const xPercent = (xVal / 1000) * 100;
+          const gapPercent = 4; // Clear margin between curve dot and card text
+
           return (
             <div
               key={idx}
-              style={{ top: `${yVal}px` }}
-              className={`absolute -translate-y-1/2 left-[80px] md:left-[55%] w-[calc(100%-120px)] md:w-[38%] ${
-                isLeft ? "md:left-auto md:right-[55%]" : ""
-              } pointer-events-auto`}
+              style={{
+                top: `${yVal}px`,
+                ...(isLeft
+                  ? { right: `${100 - (xPercent - gapPercent)}%`, left: "auto" }
+                  : { left: `${xPercent + gapPercent}%`, right: "auto" }),
+              }}
+              className="absolute -translate-y-1/2 w-[calc(100%-120px)] md:w-[35%] max-md:!left-[80px] max-md:!right-auto pointer-events-auto"
             >
               <motion.div
                 initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
@@ -336,17 +343,17 @@ export default function Timeline() {
                 <span className="font-serif italic text-7xl md:text-8xl text-white leading-none mb-4 block select-none">
                   {item.number}
                 </span>
-                
+
                 {/* Milestone Title */}
                 <h3 className="font-sans font-bold text-white text-xl md:text-2xl tracking-wider mb-2">
                   {item.title}
                 </h3>
-                
+
                 {/* Milestone Time */}
                 <span className="font-serif italic text-xl md:text-2xl text-white/80 tracking-wide mb-3 block select-none">
                   {item.time}
                 </span>
-                
+
                 {/* Milestone Description */}
                 <p className="font-sans text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
                   {item.description}

@@ -380,22 +380,88 @@ export default function FluidShaderBackground() {
     };
 
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const timelineProgress = Math.min(Math.max(scrollY / 5500, 0), 1);
-      const targetZoom = 1.25 - timelineProgress * 0.7;
-      const angle = (scrollY - 500) * (Math.PI / 1000);
-      const targetColorTransition = Math.min(Math.max(0.5 - 0.5 * Math.cos(angle), 0), 1);
+      const timelineSection = document.getElementById("timeline-section");
+      let currentPos = 0;
+      let minPos = 0;
+
+      if (timelineSection) {
+        const rect = timelineSection.getBoundingClientRect();
+        const vh = window.innerHeight;
+        currentPos = (vh / 2) - rect.top;
+
+        // minPos is the currentPos value when window.scrollY = 0 (top of document)
+        const containerTop = rect.top + window.scrollY;
+        minPos = (vh / 2) - containerTop;
+      } else {
+        currentPos = (window.scrollY / 5500) * 5500;
+        minPos = 0;
+      }
+
+      // Smooth horizontal sway:
+      // When scrolled to top (currentPos <= minPos): 0vw (perfectly centered on load & scroll-top)
+      // Top -> M1 (minPos to 500px): smooth half-cosine arc from 0vw to +18vw (M1 right peak)
+      // M1 -> M6 (500px to 5500px): harmonic sway between +18vw and -18vw
+      // M6 -> Footer (5500px to 6000px): smooth half-cosine arc from -18vw back to 0vw
+      const maxShiftVw = 18;
+      let xShiftVw = 0;
+
+      if (currentPos <= minPos) {
+        xShiftVw = 0;
+      } else if (currentPos < 500) {
+        const startDist = 500 - minPos;
+        const startProgress = startDist > 0 ? Math.min((currentPos - minPos) / startDist, 1) : 1;
+        xShiftVw = (0.5 - 0.5 * Math.cos(startProgress * Math.PI)) * maxShiftVw;
+      } else if (currentPos <= 5500) {
+        xShiftVw = Math.cos((currentPos - 500) * (Math.PI / 1000)) * maxShiftVw;
+      } else {
+        const exitProgress = Math.min((currentPos - 5500) / 500, 1);
+        xShiftVw = -maxShiftVw * (0.5 + 0.5 * Math.cos(exitProgress * Math.PI));
+      }
+
+      // Effective active progress for zoom, blur, and glow (0 at top header & footer, 1 at peak timeline end)
+      let timelineProgress = 0;
+      if (currentPos <= minPos) {
+        timelineProgress = 0;
+      } else if (currentPos <= 5500) {
+        const totalTimelineDist = 5500 - minPos;
+        timelineProgress = totalTimelineDist > 0 ? Math.min(Math.max((currentPos - minPos) / totalTimelineDist, 0), 1) : 0;
+      } else {
+        const exitProgress = Math.min((currentPos - 5500) / 500, 1);
+        timelineProgress = 1 - exitProgress;
+      }
+
+      // Zoom range: 1.25 unzoomed (at header and footer) down to 0.90 at peak
+      const targetZoom = 1.25 - timelineProgress * 0.35;
+      const logoScale = 1.25 / targetZoom;
+
+      let targetColorTransition = 0;
+      if (currentPos > minPos && currentPos < 6000) {
+        const colorProgress = currentPos <= 5500 ? currentPos : 5500 - (currentPos - 5500);
+        const colorAngle = (colorProgress - 500) * (Math.PI / 1000);
+        targetColorTransition = Math.min(Math.max(0.5 - 0.5 * Math.cos(colorAngle), 0), 1);
+        if (currentPos <= minPos) targetColorTransition = 0;
+        if (currentPos > 5500) {
+          const exitProgress = Math.min((currentPos - 5500) / 500, 1);
+          targetColorTransition *= (1 - exitProgress);
+        }
+      }
+
       shaderParams.current.zoom = targetZoom;
       shaderParams.current.colorTransition = targetColorTransition;
-      const fromColor = interpolateHex("#1f093f", "#001c13", targetColorTransition);
-      const viaColor = interpolateHex("#090416", "#000806", targetColorTransition);
-      const toColor = interpolateHex("#04020a", "#000403", targetColorTransition);
-      document.documentElement.style.setProperty("--bg-gradient-from", fromColor);
-      document.documentElement.style.setProperty("--bg-gradient-via", viaColor);
-      document.documentElement.style.setProperty("--bg-gradient-to", toColor);
-      const rotateDeg = targetColorTransition * 140;
-      document.documentElement.style.setProperty("--logo-hue-rotate", `${rotateDeg}deg`);
+
+      // 1. Shift WebGL Canvas horizontally and ramp opacity
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.style.transform = `translateX(${xShiftVw}vw)`;
+        canvas.style.opacity = `${0.45 + timelineProgress * 0.20}`;
+      }
+
+      // 2. Shift and scale X logo in tandem, plus soft blur dissolve
       if (logoContainer) {
+        const xBlur = timelineProgress * 5; // gentle blur dissolve up to 5px, 0px at header/footer
+        logoContainer.style.transform = `translate(${xShiftVw}vw, 0px) scale(${logoScale})`;
+        logoContainer.style.filter = `blur(${xBlur}px)`;
+
         const logoStop0 = interpolateHex("#5200c7", "#005035", targetColorTransition);
         const logoStop33 = interpolateHex("#ae73f2", "#30e5c8", targetColorTransition);
         const logoStop66 = interpolateHex("#7801ff", "#00b590", targetColorTransition);
@@ -409,6 +475,29 @@ export default function FluidShaderBackground() {
         logoContainer.style.setProperty("--x-shadow-1", shadow1);
         logoContainer.style.setProperty("--x-shadow-2", shadow2);
       }
+
+      // 3. Dynamic Backdrop Blur & Film Grain ramping over timeline scroll, returning to base at header/footer
+      const blurOverlay = blurOverlayRef.current;
+      if (blurOverlay) {
+        const backdropBlur = 10 + timelineProgress * 14; // 10px at header/footer, up to 24px
+        const saturate = 1.3 + timelineProgress * 0.3; // 1.3 at header/footer, up to 1.6
+        blurOverlay.style.backdropFilter = `blur(${backdropBlur}px) saturate(${saturate}) contrast(1.02)`;
+        blurOverlay.style.webkitBackdropFilter = `blur(${backdropBlur}px) saturate(${saturate}) contrast(1.02)`;
+      }
+
+      const grainOverlay = grainOverlayRef.current;
+      if (grainOverlay) {
+        grainOverlay.style.opacity = `${0.09 + timelineProgress * 0.07}`; // 0.09 at header/footer, up to 0.16
+      }
+
+      const fromColor = interpolateHex("#1f093f", "#001c13", targetColorTransition);
+      const viaColor = interpolateHex("#090416", "#000806", targetColorTransition);
+      const toColor = interpolateHex("#04020a", "#000403", targetColorTransition);
+      document.documentElement.style.setProperty("--bg-gradient-from", fromColor);
+      document.documentElement.style.setProperty("--bg-gradient-via", viaColor);
+      document.documentElement.style.setProperty("--bg-gradient-to", toColor);
+      const rotateDeg = targetColorTransition * 140;
+      document.documentElement.style.setProperty("--logo-hue-rotate", `${rotateDeg}deg`);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -416,6 +505,21 @@ export default function FluidShaderBackground() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      if (canvasRef.current) {
+        canvasRef.current.style.transform = "none";
+        canvasRef.current.style.opacity = "0.45";
+      }
+      if (logoContainerRef.current) {
+        logoContainerRef.current.style.transform = "scale(1)";
+        logoContainerRef.current.style.filter = "blur(0px)";
+      }
+      if (blurOverlayRef.current) {
+        blurOverlayRef.current.style.backdropFilter = "blur(10px) saturate(1.3) contrast(1.02)";
+        blurOverlayRef.current.style.webkitBackdropFilter = "blur(10px) saturate(1.3) contrast(1.02)";
+      }
+      if (grainOverlayRef.current) {
+        grainOverlayRef.current.style.opacity = "0.09";
+      }
       document.documentElement.style.setProperty("--logo-hue-rotate", "0deg");
       document.documentElement.style.setProperty("--bg-gradient-from", "#1f093f");
       document.documentElement.style.setProperty("--bg-gradient-via", "#090416");
